@@ -3,182 +3,276 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Imperio de la Quinoa V2.0</title>
+    <title>Quinoa & Jamón Tycoon™ (Oficial)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #1a202c; color: #e2e8f0; font-family: 'Segoe UI', Tahoma, sans-serif; }
-        .card { background-color: #2d3748; border-radius: 0.75rem; padding: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .btn { transition: all 0.2s; }
+        /* Estilo Startup Moderna "Premium" pero dudosa */
+        body { 
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #f8fafc; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            min-height: 100vh;
+        }
+        
+        /* Glassmorphism para dar el toque "Empresa de Tecnología" */
+        .card-glass { 
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1rem; 
+            padding: 1.25rem; 
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid transparent; }
         .btn:active:not(:disabled) { transform: scale(0.95); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
+        .btn:hover:not(:disabled) { filter: brightness(1.2); border-color: rgba(255,255,255,0.2); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(80%); }
         
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #2d3748; }
-        ::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 4px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 4px; }
         
-        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        .animate-pop { animation: pop 0.2s ease-in-out; }
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.15) rotate(2deg); } 100% { transform: scale(1); } }
+        .animate-pop { animation: pop 0.25s ease-in-out; }
         
-        @keyframes pulseAlert { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        @keyframes pulseAlert { 0%, 100% { opacity: 1; box-shadow: 0 0 15px red; } 50% { opacity: 0.7; box-shadow: 0 0 5px red; } }
         .event-alert { animation: pulseAlert 1.5s infinite; }
         
-        /* Modals */
-        .modal-overlay { background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(4px); }
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); }
+
+        /* Sello trucho */
+        .fake-seal {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #eab308;
+            color: black;
+            font-size: 0.6rem;
+            font-weight: 900;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transform: rotate(15deg);
+            border: 2px dashed black;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-2 md:p-6 pt-10">
+<body class="flex flex-col items-center p-2 md:p-6 pt-12 pb-24">
 
     <!-- BANNERS DE ALERTAS -->
-    <div id="grace-warning" class="fixed top-0 left-0 w-full bg-red-900 text-white text-center py-2 font-bold z-50 hidden border-b-4 border-red-500 event-alert">
-        ¡ALERTA ROJA! <span id="grace-reason"></span>. Bancarrota en: <span id="grace-timer" class="text-3xl mx-2">15</span>s.
+    <div id="grace-warning" class="fixed top-0 left-0 w-full bg-red-900 text-white text-center py-2 font-black tracking-widest z-50 hidden border-b-4 border-red-500 event-alert">
+        ⚠️ AUDITORÍA INMINENTE ⚠️ <span id="grace-reason"></span>. Embargo en: <span id="grace-timer" class="text-3xl mx-2">15</span>s.
     </div>
     
-    <div id="event-banner" class="fixed top-12 left-0 w-full bg-purple-900 text-white text-center py-2 font-bold z-40 hidden border-b-4 border-purple-500 shadow-lg transition-transform">
-        🌟 EVENTO ACTIVO: <span id="event-name" class="text-yellow-300"></span> - <span id="event-desc" class="text-sm font-normal"></span> (<span id="event-timer"></span>s)
+    <div id="event-banner" class="fixed top-12 left-0 w-full bg-indigo-900/90 backdrop-blur text-white text-center py-2 font-bold z-40 hidden border-b border-indigo-500 shadow-lg">
+        🚨 TENDENCIA DE MERCADO: <span id="event-name" class="text-yellow-300"></span> - <span id="event-desc" class="text-sm font-normal"></span> (<span id="event-timer"></span>s)
     </div>
 
-    <!-- HEADER / SAVE CONTROLS -->
-    <div class="flex flex-wrap justify-between items-center w-full max-w-7xl mb-4 gap-2">
-        <div class="flex gap-2">
-            <button onclick="Game.Save.manual()" class="btn bg-blue-700 hover:bg-blue-600 text-white text-xs font-bold py-2 px-4 rounded">💾 Guardar</button>
-            <button onclick="Game.Save.reset()" class="btn bg-red-800 hover:bg-red-700 text-white text-xs font-bold py-2 px-4 rounded">🔄 Reiniciar</button>
-            <button onclick="Game.UI.toggleModal('tech-modal')" class="btn bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2 px-4 rounded border border-indigo-400 shadow-[0_0_10px_rgba(79,70,229,0.5)]">🧬 Árbol I+D</button>
+    <!-- CABECERA "CORPORATIVA" -->
+    <header class="text-center mb-8 w-full max-w-7xl relative">
+        <div class="inline-block relative">
+            <h1 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-yellow-200 to-yellow-500 mb-1 tracking-tight drop-shadow-md">
+                Quinoa & Jamón Tycoon™
+            </h1>
+            <div class="fake-seal">100%<br>LEGAL</div>
         </div>
-        <div class="text-xs text-gray-500 font-bold bg-gray-800 px-3 py-1 rounded-full">💾 Local</div>
-    </div>
-
-    <header class="text-center mb-6 w-full max-w-7xl">
-        <h1 class="text-3xl md:text-5xl font-bold text-yellow-400 mb-1">🌾 Quinoa & Jamón Tycoon 🍖</h1>
+        <p class="text-indigo-200 text-sm tracking-wide mt-2">Disrupting la industria alimentaria sustentable. (Certificación de sanidad en trámite).</p>
+        
+        <!-- BOTÓN I+D (Destacado arriba) -->
+        <div class="absolute right-0 top-0 md:top-2 hidden md:block">
+            <button onclick="Game.UI.toggleModal('tech-modal')" class="btn bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-bold py-3 px-6 rounded-full shadow-[0_0_20px_rgba(99,102,241,0.5)] border border-indigo-300">
+                🧬 Área de Innovación (I+D)
+            </button>
+        </div>
     </header>
 
-    <!-- STATS TOP BAR -->
-    <div class="w-full max-w-7xl card flex flex-wrap justify-between items-center bg-gray-800 border-b-4 border-yellow-500 mb-6 relative">
-        <div id="fine-warning" class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-red-600 text-white font-bold text-[10px] px-3 py-1 hidden rounded-full shadow-md z-10 event-alert">
-            ⚠️ MULTA DE SANIDAD ACTIVA
+    <!-- PANEL FIJO FLOTANTE INFERIOR (Controles del Sistema) -->
+    <div class="fixed bottom-4 left-4 z-40 flex flex-col gap-2 bg-gray-900/80 backdrop-blur-md p-3 rounded-2xl border border-gray-700 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-gray-700 pb-2 mb-1 gap-4">
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                Estado: 
+                <span id="sys-status" class="bg-red-500/20 text-red-400 px-2 py-0.5 rounded text-[10px] animate-pulse">PAUSADO</span>
+            </div>
+            <button onclick="Game.Core.togglePause()" id="btn-pause" class="btn bg-gray-800 text-white hover:bg-gray-700 p-2 rounded-full border border-gray-600 shadow-lg">
+                ▶️
+            </button>
         </div>
+        <div class="flex gap-2">
+            <button onclick="Game.Save.manual()" class="btn flex-1 bg-blue-600/80 hover:bg-blue-500 text-white text-[10px] font-bold py-1.5 px-3 rounded-lg border border-blue-400/30">💾 Guardar local</button>
+            <button onclick="Game.Save.reset()" class="btn flex-1 bg-red-800/80 hover:bg-red-700 text-white text-[10px] font-bold py-1.5 px-3 rounded-lg border border-red-500/30">🔥 Evadir la ley (Reset)</button>
+        </div>
+    </div>
+    
+    <!-- Botón I+D Mobile -->
+    <div class="w-full max-w-7xl flex justify-center mb-4 md:hidden">
+        <button onclick="Game.UI.toggleModal('tech-modal')" class="btn w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-bold py-3 px-6 rounded-xl shadow-lg border border-indigo-300">
+            🧬 Área de Innovación (I+D)
+        </button>
+    </div>
+
+    <!-- DASHBOARD ESTADÍSTICAS -->
+    <div class="w-full max-w-7xl card-glass flex flex-wrap justify-between items-center mb-6 relative border-t-4 border-t-yellow-400">
+        <div id="fine-warning" class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-red-600 text-white font-bold text-[10px] px-4 py-1 hidden rounded-full shadow-lg z-10 event-alert tracking-widest uppercase">
+            ⚠️ Retención Fiscal Activa ⚠️
+        </div>
+        
         <div class="text-center p-2 flex-1">
-            <p class="text-xs text-gray-400 uppercase font-bold">Capital</p>
-            <p class="text-2xl font-bold text-green-400" id="stat-money">$20.00</p>
-            <p class="text-[10px] text-red-400 font-bold hidden absolute" id="stat-fine">-$0.00/s</p>
+            <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest" title="Capital">Fondos (No declarados)</p>
+            <p class="text-3xl font-black text-emerald-400 tracking-tighter" id="stat-money">$20.00</p>
+            <p class="text-[10px] text-red-400 font-bold hidden absolute w-full left-0 text-center" id="stat-fine">-$0.00/s</p>
         </div>
-        <div class="text-center p-2 flex-1 border-l border-gray-600">
-            <p class="text-xs text-gray-400 uppercase font-bold">Reputación</p>
-            <p class="text-2xl font-bold text-green-400" id="stat-rep">100%</p>
+        <div class="text-center p-2 flex-1 border-l border-white/10">
+            <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest" title="Reputación">Trust Score™</p>
+            <p class="text-3xl font-black text-emerald-400 tracking-tighter" id="stat-rep">100%</p>
         </div>
-        <div class="text-center p-2 flex-1 border-l border-gray-600">
-            <p class="text-xs text-gray-400 uppercase font-bold">Quinoa</p>
-            <p class="text-2xl font-bold text-yellow-200" id="stat-quinoa">0</p>
+        <div class="text-center p-2 flex-1 border-l border-white/10">
+            <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Biomasa Vegetal</p>
+            <p class="text-3xl font-black text-yellow-200 tracking-tighter" id="stat-quinoa">0</p>
         </div>
-        <div class="text-center p-2 flex-1 border-l border-gray-600">
-            <p class="text-xs text-gray-400 uppercase font-bold">Jamón</p>
-            <p class="text-2xl font-bold text-red-300" id="stat-ham">0</p>
+        <div class="text-center p-2 flex-1 border-l border-white/10">
+            <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Proteína "Porcina"</p>
+            <p class="text-3xl font-black text-pink-400 tracking-tighter" id="stat-ham">0</p>
         </div>
-        <div class="text-center p-2 flex-1 border-l border-gray-600 hidden" id="stat-rad-container">
-            <p class="text-xs text-gray-400 uppercase font-bold text-green-500">Sustituto Rad.</p>
-            <p class="text-2xl font-bold text-green-500" id="stat-rad">0</p>
+        <div class="text-center p-2 flex-1 border-l border-white/10 hidden" id="stat-rad-container">
+            <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest text-lime-400">Nutriente Rad.</p>
+            <p class="text-3xl font-black text-lime-400 tracking-tighter" id="stat-rad">0</p>
         </div>
-        <div class="text-center p-2 flex-1 border-l border-gray-600">
-            <p class="text-xs text-gray-400 uppercase font-bold">Porciones</p>
-            <p class="text-2xl font-bold text-orange-400" id="stat-portions">0</p>
+        <div class="text-center p-2 flex-1 border-l border-white/10">
+            <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Unidades Listas</p>
+            <p class="text-3xl font-black text-orange-400 tracking-tighter" id="stat-portions">0</p>
         </div>
     </div>
 
-    <main class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-4 gap-4">
+    <main class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-4 gap-6">
         
-        <!-- COL 1: MERCADO Y FINANZAS -->
-        <div class="flex flex-col gap-4">
-            <div class="card border-t-4 border-blue-500">
-                <h2 class="text-lg font-bold text-blue-400 mb-3">🛒 Mercado Público</h2>
-                <div class="space-y-2">
-                    <button id="btn-buy-quinoa" onclick="Game.Market.buy('quinoa')" class="btn w-full bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold py-2 px-3 rounded flex justify-between">
-                        <span>Quinoa 🌾</span><span id="cost-quinoa">-$3.00</span>
+        <!-- COL 1: ABASTECIMIENTO Y FINANZAS -->
+        <div class="flex flex-col gap-6">
+            <div class="card-glass relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-blue-600 text-white text-[8px] font-bold px-2 py-1 rounded-bl-lg">B2B APP</div>
+                <h2 class="text-lg font-bold text-blue-300 mb-1">🛒 Supply Chain App</h2>
+                <p class="text-[10px] text-gray-400 mb-4">Adquisición de insumos sin preguntas.</p>
+                
+                <div class="space-y-3">
+                    <button id="btn-buy-quinoa" onclick="Game.Market.buy('quinoa')" class="btn w-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-bold py-3 px-4 rounded-xl flex justify-between items-center border border-slate-600 shadow-md">
+                        <span class="flex items-center gap-2">🌾 <span>Quinoa</span></span>
+                        <span id="cost-quinoa" class="text-blue-300 bg-blue-900/50 px-2 py-0.5 rounded text-xs">-$3.00</span>
                     </button>
-                    <button id="btn-buy-ham" onclick="Game.Market.buy('ham')" class="btn w-full bg-red-600 hover:bg-red-500 text-white text-sm font-bold py-2 px-3 rounded flex justify-between">
-                        <span>Jamón 🍖</span><span id="cost-ham">-$1.50</span>
+                    <button id="btn-buy-ham" onclick="Game.Market.buy('ham')" class="btn w-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-bold py-3 px-4 rounded-xl flex justify-between items-center border border-slate-600 shadow-md">
+                        <span class="flex items-center gap-2">🍖 <span>"Jamón"</span></span>
+                        <span id="cost-ham" class="text-pink-300 bg-pink-900/50 px-2 py-0.5 rounded text-xs">-$1.50</span>
                     </button>
                 </div>
             </div>
 
-            <div id="black-market-panel" class="card border-t-4 border-green-600 bg-gray-900 hidden">
-                <h2 class="text-lg font-bold text-green-500 mb-1">☢️ Mercado Negro</h2>
-                <p class="text-[10px] text-gray-500 mb-2">Ilegal. Rinde x4. Destroza reputación.</p>
-                <button id="btn-buy-rad" onclick="Game.Market.buy('rad')" class="btn w-full bg-green-900 hover:bg-green-800 text-green-300 text-sm font-bold py-2 px-3 rounded flex justify-between border border-green-700">
-                    <span>Sustituto Rad. 🧪</span><span id="cost-rad">-$0.50</span>
+            <div id="black-market-panel" class="card-glass border-t-2 border-lime-500 bg-black/40 hidden">
+                <h2 class="text-lg font-bold text-lime-400 mb-1 flex items-center gap-2">☢️ Deep Web Store</h2>
+                <p class="text-[10px] text-gray-400 mb-3">Material anómalo. Alto rendimiento, dudosa legalidad.</p>
+                <button id="btn-buy-rad" onclick="Game.Market.buy('rad')" class="btn w-full bg-lime-900/30 hover:bg-lime-800/50 text-lime-300 text-sm font-bold py-3 px-4 rounded-xl flex justify-between items-center border border-lime-700/50 shadow-[0_0_15px_rgba(132,204,22,0.1)]">
+                    <span>Sustituto Radiactivo</span><span id="cost-rad" class="bg-black/50 px-2 py-0.5 rounded text-xs">-$0.50</span>
                 </button>
             </div>
 
-            <div class="card border-t-4 border-red-700">
-                <h2 class="text-lg font-bold text-red-500 mb-2">🏦 Prestamista</h2>
-                <div class="bg-gray-700 p-2 rounded text-center mb-2">
-                    <p class="text-[10px] text-gray-400">Deuda (Interés: <span id="lbl-interest">30%</span>)</p>
-                    <p class="text-xl font-bold text-red-400" id="stat-debt">$0.00</p>
+            <div class="card-glass border-t-2 border-red-500/50 relative overflow-hidden">
+                <h2 class="text-lg font-bold text-red-400 mb-1">🏦 Fintech "DineroYa"</h2>
+                <p class="text-[10px] text-gray-400 mb-3">Términos abusivos. Riesgo físico en caso de impago.</p>
+                
+                <div class="bg-black/30 p-3 rounded-xl text-center mb-3 border border-red-900/30">
+                    <p class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Capital Adeudado (TNA: <span id="lbl-interest">30%</span>)</p>
+                    <p class="text-2xl font-black text-red-500" id="stat-debt">$0.00</p>
                 </div>
                 <div class="flex gap-2">
-                    <button id="btn-loan" onclick="Game.Finance.takeLoan()" class="btn flex-1 bg-red-900 hover:bg-red-800 text-white text-xs py-2 rounded">+$500</button>
-                    <button id="btn-pay-debt" onclick="Game.Finance.payDebt()" class="btn flex-1 bg-green-700 hover:bg-green-600 text-white text-xs py-2 rounded">Pagar</button>
+                    <button id="btn-loan" onclick="Game.Finance.takeLoan()" class="btn flex-1 bg-red-900/50 hover:bg-red-800 text-red-200 text-xs py-2.5 rounded-xl font-bold border border-red-700/50 shadow-md">Adquirir $500</button>
+                    <button id="btn-pay-debt" onclick="Game.Finance.payDebt()" class="btn flex-1 bg-emerald-700/50 hover:bg-emerald-600 text-emerald-100 text-xs py-2.5 rounded-xl font-bold border border-emerald-600/50 shadow-md">Liquidar</button>
                 </div>
             </div>
             
-            <div class="card border-t-4 border-pink-500">
-                <h2 class="text-lg font-bold text-pink-400 mb-2">📣 Marketing</h2>
-                <button id="btn-camp-promo" onclick="Game.Events.triggerCampaign('promo')" class="btn w-full bg-pink-700 hover:bg-pink-600 text-white text-xs py-2 px-3 rounded flex justify-between items-center text-left mb-2">
-                    <span>Liquidación (Ventas x3)</span><span class="bg-pink-900 px-1 rounded">-$50</span>
+            <div class="card-glass">
+                <h2 class="text-lg font-bold text-fuchsia-400 mb-1">📣 Growth Hacking</h2>
+                <p class="text-[10px] text-gray-400 mb-3">Estrategias cuestionables para inflar métricas.</p>
+                
+                <button id="btn-camp-promo" onclick="Game.Events.triggerCampaign('promo')" class="btn w-full bg-slate-800 hover:bg-slate-700 text-white text-xs py-3 px-3 rounded-xl flex justify-between items-center text-left mb-2 border border-slate-600">
+                    <span class="font-bold">Bots de Reseñas (Ventas x3)</span>
+                    <span class="text-fuchsia-300 bg-fuchsia-900/30 px-2 py-1 rounded text-[10px] border border-fuchsia-700/50">-$50</span>
                 </button>
-                <button id="btn-camp-influencer" onclick="Game.Events.triggerCampaign('influencer')" class="btn w-full bg-pink-700 hover:bg-pink-600 text-white text-xs py-2 px-3 rounded flex justify-between items-center text-left">
-                    <span>Influencer (Escudo Rep.)</span><span class="bg-pink-900 px-1 rounded">-$100</span>
+                <button id="btn-camp-influencer" onclick="Game.Events.triggerCampaign('influencer')" class="btn w-full bg-slate-800 hover:bg-slate-700 text-white text-xs py-3 px-3 rounded-xl flex justify-between items-center text-left border border-slate-600">
+                    <span class="font-bold">Sobornar Influencer Fit</span>
+                    <span class="text-fuchsia-300 bg-fuchsia-900/30 px-2 py-1 rounded text-[10px] border border-fuchsia-700/50">-$100</span>
                 </button>
             </div>
         </div>
 
         <!-- COL 2 & 3: LÍNEAS DE PRODUCCIÓN (COCINAS) -->
         <div class="lg:col-span-2 flex flex-col gap-4">
-            <div class="flex justify-between items-end">
-                <h2 class="text-2xl font-bold text-yellow-400 flex items-center gap-2">🏭 Factoría</h2>
-                <button id="btn-buy-kitchen" onclick="Game.Kitchens.buyNew()" class="btn bg-yellow-700 hover:bg-yellow-600 text-white text-xs font-bold py-2 px-4 rounded shadow-lg">
-                    + Comprar Cocina ($<span id="cost-new-kitchen">500</span>)
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-2 mb-2">
+                <div>
+                    <h2 class="text-2xl font-black text-yellow-400 tracking-tight">🏭 Laboratorios de Mezcla</h2>
+                    <p class="text-xs text-gray-400 mt-1">Donde ocurre la magia (y las violaciones de salubridad).</p>
+                </div>
+                <button id="btn-buy-kitchen" onclick="Game.Kitchens.buyNew()" class="btn bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-white text-xs font-bold py-2.5 px-5 rounded-full shadow-lg border border-yellow-400/50">
+                    + Expandir Operaciones ($<span id="cost-new-kitchen">500</span>)
                 </button>
             </div>
             
-            <div id="kitchens-container" class="space-y-4 max-h-[600px] overflow-y-auto pr-2">
-                <!-- Las cocinas se renderizan aquí dinámicamente -->
+            <!-- CONTENEDOR DE COCINAS -->
+            <div id="kitchens-container" class="space-y-4 max-h-[700px] overflow-y-auto pr-2 pb-4">
+                <!-- Se renderiza vía JS -->
             </div>
         </div>
 
         <!-- COL 4: VENTAS Y AUTOMATIZACIÓN -->
-        <div class="flex flex-col gap-4">
-            <div class="card border-t-4 border-green-500 text-center">
-                <h2 class="text-lg font-bold text-green-400 mb-2">💰 Mostrador</h2>
-                <button id="btn-sell" onclick="Game.Market.sell()" class="btn w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 rounded shadow-lg flex justify-center items-center gap-2 text-xl">
-                    <span>VENDER (1u)</span>
+        <div class="flex flex-col gap-6">
+            <div class="card-glass border-t-2 border-emerald-500 relative overflow-hidden">
+                <div class="absolute -right-6 top-4 bg-emerald-600 text-white text-[10px] font-black px-8 py-1 rotate-45 shadow-lg">B2C APP</div>
+                <h2 class="text-lg font-bold text-emerald-400 mb-1">🛒 E-Commerce App</h2>
+                <p class="text-[10px] text-gray-400 mb-4">Interfaz para el consumidor final crédulo.</p>
+                
+                <button id="btn-sell" onclick="Game.Market.sell()" class="btn w-full bg-gradient-to-b from-emerald-500 to-emerald-700 hover:from-emerald-400 hover:to-emerald-600 text-white font-black py-5 rounded-xl shadow-[0_5px_0_rgb(6,78,59)] active:shadow-none active:translate-y-[5px] flex justify-center items-center text-xl tracking-widest border border-emerald-400">
+                    VENDER (1u)
                 </button>
-                <p class="text-sm mt-2 text-gray-400">Precio actual: <span id="price-sell" class="text-green-300 font-bold">+$7.00</span></p>
+                <div class="mt-4 bg-black/40 rounded-lg p-2 text-center border border-emerald-900/30">
+                    <p class="text-xs text-gray-400">Cotización de mercado actual</p>
+                    <p class="text-xl font-black text-emerald-300" id="price-sell">+$7.00</p>
+                </div>
             </div>
 
-            <div class="card border-t-4 border-purple-500 flex-grow">
-                <h2 class="text-lg font-bold text-purple-400 mb-3">⚙️ Automatización (Global)</h2>
-                <div class="space-y-3">
-                    <div class="bg-gray-700 p-2 rounded">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-xs font-bold">Proveedores</span>
-                            <span class="text-xs text-purple-300">Nvl <span id="amt-autobuyer">0</span></span>
+            <div class="card-glass flex-grow border-t-4 border-dashed border-red-500 bg-red-900/10">
+                <h2 class="text-xl font-black text-red-500 mb-1 drop-shadow-[0_0_5px_rgba(239,68,68,0.8)] tracking-tighter">👽 "IA" (Sótano Clandestino)</h2>
+                <p class="text-[10px] text-gray-300 mb-4 font-mono">Automatización mediante mano de obra terciarizada hiper-precaria. ¡Viva el libre mercado!</p>
+                
+                <div class="space-y-5">
+                    <!-- Buyers - Estilo Hacker Trucho -->
+                    <div class="bg-black p-3 rounded-none border-2 border-green-500 shadow-[0_0_15px_rgba(34,197,94,0.3)] font-mono">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-green-400">> Saqueadores_Rappi.exe</span>
+                            <span class="text-[10px] bg-green-900 text-green-300 px-2 py-0.5 border border-green-500 animate-pulse">Lvl_<span id="amt-autobuyer">0</span></span>
                         </div>
-                        <button id="btn-upg-buyer" onclick="Game.Bots.buy('buyers')" class="btn w-full bg-purple-600 hover:bg-purple-500 text-[10px] py-1 rounded">Comprar ($<span id="cost-autobuyer">150</span>)</button>
+                        <button id="btn-upg-buyer" onclick="Game.Bots.buy('buyers')" class="btn w-full bg-green-900/50 hover:bg-green-700 text-green-100 text-[10px] font-bold py-2 rounded-none border border-green-500 transition-colors uppercase tracking-widest">> Pagar_Hacker ($<span id="cost-autobuyer">150</span>)</button>
                     </div>
                     
-                    <div class="bg-gray-700 p-2 rounded">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-xs font-bold">Mezcladoras (Reparten a cocinas)</span>
-                            <span class="text-xs text-purple-300">Nvl <span id="amt-automixer">0</span></span>
+                    <!-- Mixers - Estilo Óxido y Absurdo -->
+                    <div class="bg-amber-950/80 p-3 rounded-2xl border-4 border-dotted border-amber-600 shadow-xl transform rotate-1">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-black text-amber-400 tracking-tighter leading-tight drop-shadow-md">Hormigonera de<br>Quinoa con Jamón</span>
+                            <span class="text-[10px] bg-amber-600 text-white px-2 py-1 rounded-full font-bold shadow-[0_0_5px_orange] transform -rotate-6">v<span id="amt-automixer">0</span> (Riesgo Tétanos)</span>
                         </div>
-                        <button id="btn-upg-mixer" onclick="Game.Bots.buy('mixers')" class="btn w-full bg-purple-600 hover:bg-purple-500 text-[10px] py-1 rounded">Comprar ($<span id="cost-automixer">50</span>)</button>
+                        <button id="btn-upg-mixer" onclick="Game.Bots.buy('mixers')" class="btn w-full bg-gradient-to-r from-amber-700 to-orange-600 hover:from-amber-600 hover:to-orange-500 text-white text-[11px] font-black py-2.5 rounded-xl shadow-[0_4px_0_#78350f] active:shadow-none active:translate-y-[4px] border border-orange-400/50">
+                            ⚙️ Aceitar Motor ($<span id="cost-automixer">50</span>)
+                        </button>
                     </div>
 
-                    <div class="bg-gray-700 p-2 rounded">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-xs font-bold">Vendedores Callejeros</span>
-                            <span class="text-xs text-purple-300">Nvl <span id="amt-autoseller">0</span></span>
+                    <!-- Sellers - Estilo Scam Crypto -->
+                    <div class="bg-fuchsia-950/80 p-3 rounded-lg border-2 border-fuchsia-500 shadow-[0_0_20px_rgba(217,70,239,0.3)] relative overflow-hidden">
+                        <div class="absolute -right-4 top-2 bg-yellow-400 text-black text-[8px] font-black px-4 py-1 rotate-45 shadow-md">10X BRO!</div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-bold text-fuchsia-300">Crypto-Bros Promotores 🚀</span>
+                            <span class="text-[10px] bg-fuchsia-900 text-fuchsia-200 px-2 py-0.5 rounded-sm font-bold border border-fuchsia-400">Ponzis: <span id="amt-autoseller">0</span></span>
                         </div>
-                        <button id="btn-upg-seller" onclick="Game.Bots.buy('sellers')" class="btn w-full bg-purple-600 hover:bg-purple-500 text-[10px] py-1 rounded">Comprar ($<span id="cost-autoseller">75</span>)</button>
+                        <button id="btn-upg-seller" onclick="Game.Bots.buy('sellers')" class="btn w-full bg-fuchsia-700 hover:bg-fuchsia-600 text-white text-[10px] font-bold py-2 rounded-sm border border-fuchsia-400 uppercase tracking-wider shadow-[0_0_10px_rgba(217,70,239,0.5)]">
+                            💸 Comprar Cuentas Bot ($<span id="cost-autoseller">75</span>)
+                        </button>
                     </div>
                 </div>
             </div>
@@ -187,10 +281,14 @@
 
     <!-- MODAL: ÁRBOL I+D -->
     <div id="tech-modal" class="fixed inset-0 modal-overlay z-50 hidden flex-col items-center justify-center p-4">
-        <div class="bg-gray-800 border-2 border-indigo-500 rounded-xl p-6 w-full max-w-2xl shadow-2xl relative">
-            <button onclick="Game.UI.toggleModal('tech-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl font-bold">&times;</button>
-            <h2 class="text-2xl font-bold text-indigo-400 mb-4 flex items-center gap-2">🧬 Departamento de I+D</h2>
-            <p class="text-sm text-gray-400 mb-6">Mejoras permanentes para tu imperio. No hay reembolsos.</p>
+        <div class="bg-slate-900 border border-indigo-500/50 rounded-2xl p-6 w-full max-w-3xl shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+            <button onclick="Game.UI.toggleModal('tech-modal')" class="absolute top-4 right-4 text-gray-500 hover:text-white text-2xl font-bold bg-slate-800 w-8 h-8 flex items-center justify-center rounded-full">&times;</button>
+            
+            <h2 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 mb-1 flex items-center gap-2">
+                🧬 Innovación Disruptiva (I+D)
+            </h2>
+            <p class="text-xs text-gray-400 mb-6">Mejoras permanentes para tu imperio. Cero responsabilidad civil asumida.</p>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="tech-container">
                 <!-- Se renderiza vía JS -->
@@ -202,40 +300,41 @@
     <div id="toast-container" class="fixed bottom-4 right-4 flex flex-col gap-2 z-50 pointer-events-none"></div>
 
     <!-- GAME OVER -->
-    <div id="game-over-screen" class="fixed inset-0 bg-black bg-opacity-95 z-[100] hidden flex-col items-center justify-center text-center p-6">
-        <h1 class="text-6xl md:text-8xl font-black text-red-600 mb-2 drop-shadow-lg">BANCARROTA</h1>
-        <h2 class="text-3xl font-bold text-white mb-6">Tu imperio ha colapsado.</h2>
-        <p id="game-over-reason" class="text-xl text-gray-400 mb-10 max-w-2xl bg-gray-900 p-6 rounded-lg border border-red-900 shadow-xl"></p>
-        <button onclick="Game.Save.reset()" class="bg-red-700 hover:bg-red-600 text-white font-bold py-4 px-8 rounded-full text-xl shadow-[0_0_15px_rgba(220,38,38,0.7)] transition-transform hover:scale-105">
-            Empezar de Cero
-        </button>
+    <div id="game-over-screen" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex-col items-center justify-center text-center p-6">
+        <div class="bg-red-900/20 p-12 rounded-3xl border border-red-500/30 max-w-3xl w-full relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-full bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(220,38,38,0.1)_10px,rgba(220,38,38,0.1)_20px)] pointer-events-none"></div>
+            <h1 class="text-5xl md:text-7xl font-black text-red-500 mb-2 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)] relative z-10">BANCARROTA TOTAL</h1>
+            <h2 class="text-2xl font-bold text-gray-300 mb-6 relative z-10">El FBI alimentario ha incautado tus servidores.</h2>
+            <p id="game-over-reason" class="text-lg text-gray-400 mb-10 bg-black/60 p-6 rounded-xl border border-red-900/50 shadow-inner relative z-10"></p>
+            <button onclick="Game.Save.reset()" class="relative z-10 bg-gradient-to-b from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white font-black py-4 px-10 rounded-full text-xl shadow-[0_5px_0_rgb(153,27,27)] active:shadow-none active:translate-y-[5px] transition-all border border-red-400/50">
+                CAMBIAR DE IDENTIDAD (Empezar de Cero)
+            </button>
+        </div>
     </div>
 
-    <!-- LÓGICA DEL JUEGO MODULARIZADA -->
+    <!-- LÓGICA DEL JUEGO -->
     <script>
-        // --- ARQUITECTURA DEL JUEGO (MODULAR) ---
         const Game = {
             // Estado serializable
             state: {
                 money: 50.00, debt: 0.00, reputation: 100.0, portions: 0,
                 inv: { quinoa: 0, ham: 0, rad: 0 },
-                kitchens: [ { id: 1, type: 'tazon', ham: 1 } ], // array de cocinas activas
+                kitchens: [ { id: 1, type: 'tazon', ham: 1 } ],
                 bots: { mixers: 0, sellers: 0, buyers: 0 },
                 botCosts: { mixers: 50, sellers: 75, buyers: 150 },
                 tech: { 
-                    saborizante: false, // Rep hit -50%
-                    abogado: false,     // Grace time x2, no event fine
-                    contable: false,    // Interest 30% -> 10%
-                    blackmarket: false, // Unlocks rad
-                    marketing: false    // Sell price up
+                    saborizante: false, 
+                    abogado: false,     
+                    contable: false,    
+                    blackmarket: false, 
+                    marketing: false    
                 },
-                campaign: { id: null, timer: 0 }, // promo, influencer
-                event: { id: null, timer: 0 },    // sequia, vegano
-                
-                status: { isGameOver: false, inDanger: false, graceTime: 15, currentFine: 0, fineNotified: false }
+                campaign: { id: null, timer: 0 },
+                event: { id: null, timer: 0 },
+                status: { isGameOver: false, inDanger: false, graceTime: 15, currentFine: 0, fineNotified: false, isPaused: true }
             },
 
-            // Configuraciones base (no se guardan, son estáticas)
+            // Configuraciones base (estáticas)
             cfg: {
                 baseCosts: { quinoa: 3.00, ham: 1.50, rad: 0.50 },
                 baseSell: 7.00,
@@ -243,16 +342,16 @@
                 maxKitchens: 4,
                 kitchenCost: 500,
                 techTree: [
-                    { id: 'marketing', name: 'Marketing Superfood', desc: 'Vendes a $10 base en lugar de $7.', cost: 250 },
-                    { id: 'saborizante', name: 'Saborizantes Artif.', desc: 'El jamón daña la reputación un 50% menos.', cost: 400 },
-                    { id: 'contable', name: 'Contable Creativo', desc: 'Reduce el interés del prestamista a 10%.', cost: 600 },
-                    { id: 'abogado', name: 'Abogado Corrupto', desc: 'Bancarrota tarda 30s. Ignoras multas pequeñas.', cost: 1000 },
-                    { id: 'blackmarket', name: 'Contactos Turbios', desc: 'Desbloquea el Mercado Negro (Ingredientes Ilegales).', cost: 1500 }
+                    { id: 'marketing', name: 'Re-branding "Superfood"', desc: 'Precio base de producto inflado a $10. Empaque verde.', cost: 250 },
+                    { id: 'saborizante', name: 'Saborizante MSG Avanzado', desc: 'Engaña al paladar. La biomasa daña la reputación 50% menos.', cost: 400 },
+                    { id: 'contable', name: 'Contaduría Creativa (Evasión)', desc: 'Soborna al prestamista. Intereses bajan de 30% a 10%.', cost: 600 },
+                    { id: 'abogado', name: 'Bufete de Abogados "Saul"', desc: 'Embargo tarda 30s en vez de 15s. Evitas multas menores.', cost: 1000 },
+                    { id: 'blackmarket', name: 'Conexión Deep Web', desc: 'Desbloquea ingredientes importados de Chernóbil (Mercado Negro).', cost: 1500 }
                 ],
                 events: [
-                    { id: 'sequia', name: 'Sequía Andina', desc: 'La Quinoa cuesta el triple.', duration: 30 },
-                    { id: 'vegano', name: 'Boom Vegano', desc: 'Sólo se vende bien si la reputación es alta.', duration: 25 },
-                    { id: 'escandalo', name: 'Escándalo Menor', desc: 'Pierdes 15% de reputación súbitamente.', duration: 5 } // Instant almost
+                    { id: 'sequia', name: 'Sequía en los Andes', desc: 'Guerra comercial. La Quinoa cuesta x3.', duration: 30 },
+                    { id: 'vegano', name: 'Boom de Dietas Plant-Based', desc: 'Pagan x2 por alta reputación, no compran si es baja.', duration: 25 },
+                    { id: 'escandalo', name: 'TikTok Viral Negativo', desc: 'Alguien encontró un hueso. Reputación -15% instantáneo.', duration: 5 }
                 ]
             },
 
@@ -264,8 +363,8 @@
                 toast: (msg, type='info') => {
                     const c = Game.UI.getEl('toast-container');
                     const t = document.createElement('div');
-                    let bg = type==='error'?'bg-red-800 border-red-500': type==='success'?'bg-green-800 border-green-500':'bg-gray-800 border-gray-500';
-                    t.className = `${bg} border-l-4 text-white px-4 py-3 rounded shadow-lg text-sm transition-opacity duration-300 opacity-0 translate-y-2`;
+                    let bg = type==='error'?'bg-red-900 border-red-500': type==='success'?'bg-emerald-900 border-emerald-500':'bg-slate-800 border-slate-500';
+                    t.className = `${bg} border-l-4 text-white px-4 py-3 rounded-xl shadow-lg text-xs font-bold transition-opacity duration-300 opacity-0 translate-y-2 backdrop-blur-md`;
                     t.innerText = msg; c.appendChild(t);
                     setTimeout(()=>t.classList.remove('opacity-0', 'translate-y-2'), 10);
                     setTimeout(()=>{ t.classList.add('opacity-0'); setTimeout(()=>t.remove(), 300); }, 3000);
@@ -275,17 +374,30 @@
                     if(m.classList.contains('hidden')){ m.classList.remove('hidden'); m.classList.add('flex'); }
                     else { m.classList.add('hidden'); m.classList.remove('flex'); }
                 },
+                updatePauseUI: () => {
+                    const statusSpan = Game.UI.getEl('sys-status');
+                    const btnPause = Game.UI.getEl('btn-pause');
+                    if(Game.state.status.isPaused) {
+                        statusSpan.innerText = "PAUSADO";
+                        statusSpan.className = "bg-red-500/20 text-red-400 px-2 py-0.5 rounded text-[10px] border border-red-500/30 animate-pulse";
+                        btnPause.innerHTML = "▶️";
+                        btnPause.classList.add('animate-pulse');
+                    } else {
+                        statusSpan.innerText = "OPERATIVO";
+                        statusSpan.className = "bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded text-[10px] border border-emerald-500/30";
+                        btnPause.innerHTML = "⏸️";
+                        btnPause.classList.remove('animate-pulse');
+                    }
+                },
                 update: () => {
                     const s = Game.state, c = Game.cfg, u = Game.UI;
                     
-                    // Modificadores de estado/tecnología
                     let sellPrice = s.tech.marketing ? 10.00 : c.baseSell;
                     let qCost = c.baseCosts.quinoa * (s.event.id === 'sequia' ? 3 : 1);
                     let hCost = c.baseCosts.ham;
                     let rCost = c.baseCosts.rad;
                     let interest = s.tech.contable ? 0.10 : 0.30;
                     
-                    // Top Bar
                     u.getEl('stat-money').innerText = u.formatMoney(s.money);
                     u.getEl('stat-quinoa').innerText = s.inv.quinoa;
                     u.getEl('stat-ham').innerText = s.inv.ham;
@@ -299,9 +411,8 @@
                     
                     const repEl = u.getEl('stat-rep');
                     repEl.innerText = s.reputation.toFixed(1) + "%";
-                    repEl.className = s.reputation > 75 ? "text-2xl font-bold text-green-400" : s.reputation > 35 ? "text-2xl font-bold text-yellow-400" : "text-2xl font-bold text-red-500 event-alert";
+                    repEl.className = s.reputation > 75 ? "text-3xl font-black text-emerald-400 tracking-tighter" : s.reputation > 35 ? "text-3xl font-black text-yellow-400 tracking-tighter" : "text-3xl font-black text-red-500 tracking-tighter event-alert";
 
-                    // Fines
                     const fineEl = u.getEl('stat-fine');
                     if(s.status.currentFine > 0) {
                         fineEl.innerText = `-$${s.status.currentFine.toFixed(2)}/s`;
@@ -311,7 +422,6 @@
                         fineEl.classList.add('hidden'); u.getEl('fine-warning').classList.add('hidden');
                     }
 
-                    // Market
                     u.getEl('cost-quinoa').innerText = "-" + u.formatMoney(qCost);
                     u.getEl('cost-ham').innerText = "-" + u.formatMoney(hCost);
                     u.getEl('btn-buy-quinoa').disabled = s.money < qCost;
@@ -322,7 +432,6 @@
                         u.getEl('btn-buy-rad').disabled = s.money < rCost;
                     }
 
-                    // Event Banner
                     if(s.event.id) {
                         const ev = c.events.find(e => e.id === s.event.id);
                         u.getEl('event-banner').classList.remove('hidden');
@@ -331,37 +440,101 @@
                         u.getEl('event-timer').innerText = s.event.timer;
                     } else { u.getEl('event-banner').classList.add('hidden'); }
 
-                    // Finance & Marketing
                     u.getEl('btn-loan').disabled = s.debt > 0;
                     u.getEl('btn-pay-debt').disabled = s.debt <= 0 || s.money <= 0;
                     u.getEl('btn-camp-promo').disabled = s.money < 50 || s.campaign.id !== null;
                     u.getEl('btn-camp-influencer').disabled = s.money < 100 || s.campaign.id !== null;
 
-                    // Bots
                     u.getEl('amt-autobuyer').innerText = s.bots.buyers; u.getEl('cost-autobuyer').innerText = s.botCosts.buyers; u.getEl('btn-upg-buyer').disabled = s.money < s.botCosts.buyers;
                     u.getEl('amt-automixer').innerText = s.bots.mixers; u.getEl('cost-automixer').innerText = s.botCosts.mixers; u.getEl('btn-upg-mixer').disabled = s.money < s.botCosts.mixers;
                     u.getEl('amt-autoseller').innerText = s.bots.sellers; u.getEl('cost-autoseller').innerText = s.botCosts.sellers; u.getEl('btn-upg-seller').disabled = s.money < s.botCosts.sellers;
 
-                    // Sell Button
                     let actualSellPrice = sellPrice * (s.reputation / 100);
-                    if(s.event.id === 'vegano') actualSellPrice = s.reputation > 80 ? actualSellPrice * 2 : actualSellPrice * 0.1; // Boom vegano castiga o premia duro
+                    if(s.event.id === 'vegano') actualSellPrice = s.reputation > 80 ? actualSellPrice * 2 : actualSellPrice * 0.1; 
                     u.getEl('price-sell').innerText = "+" + u.formatMoney(actualSellPrice);
                     u.getEl('btn-sell').disabled = s.portions < 1;
 
-                    // Kitchens Render & Logic
                     Game.Kitchens.renderAll();
                     u.getEl('btn-buy-kitchen').disabled = s.money < c.kitchenCost || s.kitchens.length >= c.maxKitchens;
-                    if(s.kitchens.length >= c.maxKitchens) u.getEl('btn-buy-kitchen').innerText = "Máx. Cocinas Alcanzado";
-                    else u.getEl('btn-buy-kitchen').innerHTML = `+ Comprar Cocina ($<span id="cost-new-kitchen">${c.kitchenCost}</span>)`;
+                    if(s.kitchens.length >= c.maxKitchens) u.getEl('btn-buy-kitchen').innerText = "Capacidad Máxima Alcanzada";
+                    else u.getEl('btn-buy-kitchen').innerHTML = `+ Expandir Operaciones ($<span id="cost-new-kitchen">${c.kitchenCost}</span>)`;
 
-                    // Tech Tree Render
                     Game.Tech.render();
+                    Game.UI.updatePauseUI();
                 }
             },
 
-            // Módulos
+            // --- LÓGICA DE PAUSA (NOVEDAD) ---
+            Core: {
+                resume: () => {
+                    if (Game.state.status.isPaused) {
+                        Game.state.status.isPaused = false;
+                        Game.UI.toast("Sistemas Operativos. El tiempo corre.", "success");
+                        Game.UI.update();
+                    }
+                },
+                togglePause: () => {
+                    Game.state.status.isPaused = !Game.state.status.isPaused;
+                    if(Game.state.status.isPaused) Game.UI.toast("Sistemas en Pausa.", "info");
+                    else Game.UI.toast("Sistemas Reanudados.", "success");
+                    Game.UI.update();
+                },
+                
+                checkGameOver: () => {
+                    const s = Game.state;
+                    if(s.status.isGameOver) return;
+                    
+                    if(s.reputation < 35 && !s.tech.abogado) { 
+                        s.status.currentFine = 1.00 + (s.portions * 0.05);
+                        s.money -= s.status.currentFine;
+                        if(!s.status.fineNotified) { Game.UI.toast("¡Cuidado! Impuestos/Multas reteniendo ingresos.", "error"); s.status.fineNotified = true; }
+                    } else { s.status.currentFine = 0; s.status.fineNotified = false; }
+
+                    let reason = null;
+                    if(s.reputation <= 0) reason = "Trust Score™ en 0%";
+                    else if(s.money < 0) reason = "Quiebra Financiera";
+
+                    if(reason) {
+                        if(!s.status.inDanger) {
+                            s.status.inDanger = true;
+                            s.status.graceTime = s.tech.abogado ? 30 : 15;
+                            Game.UI.getEl('grace-reason').innerText = reason;
+                            Game.UI.getEl('grace-warning').classList.remove('hidden');
+                        } else {
+                            s.status.graceTime--;
+                            Game.UI.getEl('grace-timer').innerText = s.status.graceTime;
+                            if(s.status.graceTime <= 0) {
+                                s.status.isGameOver = true;
+                                Game.Save.silent();
+                                Game.UI.getEl('grace-warning').classList.add('hidden');
+                                Game.UI.getEl('game-over-reason').innerText = `${reason}. Fuiste embargado legalmente.`;
+                                Game.UI.getEl('game-over-screen').classList.remove('hidden');
+                                Game.UI.getEl('game-over-screen').classList.add('flex');
+                            }
+                        }
+                    } else {
+                        if(s.status.inDanger) {
+                            s.status.inDanger = false;
+                            Game.UI.getEl('grace-warning').classList.add('hidden');
+                            Game.UI.toast("¡Te has salvado por los pelos!", "success");
+                        }
+                    }
+                    Game.UI.update();
+                },
+                loop: () => {
+                    if(Game.state.status.isGameOver || Game.state.status.isPaused) return;
+                    
+                    Game.Bots.tick();
+                    Game.Events.tick();
+                    Game.Core.checkGameOver();
+                    
+                    if(Math.random() < 0.2) Game.Events.rollRandomEvent();
+                }
+            },
+
             Market: {
                 buy: (item) => {
+                    Game.Core.resume(); // Arranca el juego al interactuar
                     let cost = Game.cfg.baseCosts[item];
                     if(item === 'quinoa' && Game.state.event.id === 'sequia') cost *= 3;
                     if(Game.state.money >= cost) {
@@ -370,6 +543,7 @@
                     }
                 },
                 sell: () => {
+                    Game.Core.resume();
                     const s = Game.state;
                     if (s.portions >= 1) {
                         s.portions--; 
@@ -384,12 +558,13 @@
 
             Kitchens: {
                 buyNew: () => {
+                    Game.Core.resume();
                     const s = Game.state, c = Game.cfg;
                     if(s.money >= c.kitchenCost && s.kitchens.length < c.maxKitchens) {
                         s.money -= c.kitchenCost;
                         s.kitchens.push({ id: Date.now(), type: 'tazon', ham: 1 });
-                        c.kitchenCost = Math.floor(c.kitchenCost * 1.8); // Escala el precio
-                        Game.UI.toast("¡Nueva cocina instalada!", "success");
+                        c.kitchenCost = Math.floor(c.kitchenCost * 1.8);
+                        Game.UI.toast("¡Nuevo laboratorio habilitado!", "success");
                         Game.UI.update();
                     }
                 },
@@ -403,22 +578,22 @@
                     if (k.type === 'tazon') {
                         reqH = parseInt(k.ham); yieldAmt = 1 + reqH;
                         repHit = reqH === 0 ? 0.5 : -(reqH * 0.5);
-                        if(reqH === 0) purezaCost = Math.max(0, (yieldAmt*7.00) - 3.00 + 0.50); // Forzar perdida
+                        if(reqH === 0) purezaCost = Math.max(0, (yieldAmt*7.00) - 3.00 + 0.50); 
                     } else if (k.type === 'croquetas') {
                         reqH = 4; yieldAmt = 6; repHit = -2.5;
                     } else if (k.type === 'batido') {
                         reqQ = 2; yieldAmt = 1; repHit = 2.0; purezaCost = Math.max(0, (yieldAmt*7.00) - 6.00 + 0.50);
-                    } else if (k.type === 'turbio') { // Mercado negro
+                    } else if (k.type === 'turbio') {
                         reqQ = 0; reqRad = 1; yieldAmt = 10; repHit = -5.0; 
                     }
 
-                    // Tech modifiers
                     if (repHit < 0 && Game.state.tech.saborizante) repHit *= 0.5;
                     if (repHit < 0 && Game.state.campaign.id === 'influencer') repHit = 0;
 
                     return { reqQ, reqH, reqRad, yieldAmt, repHit, purezaCost };
                 },
                 mix: (idx) => {
+                    Game.Core.resume();
                     const s = Game.state, k = s.kitchens[idx];
                     const r = Game.Kitchens.getRecipeStats(k);
                     
@@ -441,39 +616,39 @@
                         const canMix = Game.state.inv.quinoa >= r.reqQ && Game.state.inv.ham >= r.reqH && Game.state.inv.rad >= r.reqRad && Game.state.money >= r.purezaCost;
                         
                         let selectHTML = `
-                            <select onchange="Game.Kitchens.updateConfig(${idx}, 'type', this.value)" class="w-full bg-gray-800 text-white p-1 rounded text-xs border border-gray-600 mb-2">
-                                <option value="tazon" ${k.type==='tazon'?'selected':''}>Tazón Clásico</option>
-                                <option value="croquetas" ${k.type==='croquetas'?'selected':''}>Croquetas Fit (Mucha Carne)</option>
-                                <option value="batido" ${k.type==='batido'?'selected':''}>Batido Proteico (0 Carne)</option>
-                                ${Game.state.tech.blackmarket ? `<option value="turbio" ${k.type==='turbio'?'selected':''}>Fórmula Secreta (Radiactiva)</option>` : ''}
+                            <select onchange="Game.Kitchens.updateConfig(${idx}, 'type', this.value)" class="w-full bg-slate-900/50 text-white p-2 rounded-lg text-xs border border-slate-600 mb-3 focus:outline-none focus:border-yellow-500">
+                                <option value="tazon" ${k.type==='tazon'?'selected':''}>Tazón Clásico (Configurable)</option>
+                                <option value="croquetas" ${k.type==='croquetas'?'selected':''}>Croquetas "Fit" (Puro Engaño)</option>
+                                <option value="batido" ${k.type==='batido'?'selected':''}>Batido Vegano (Caro de hacer)</option>
+                                ${Game.state.tech.blackmarket ? `<option value="turbio" ${k.type==='turbio'?'selected':''}>Fórmula Z (Radiactiva)</option>` : ''}
                             </select>
                         `;
 
                         let sliderHTML = k.type === 'tazon' ? `
-                            <div class="flex justify-between text-[10px] text-gray-400"><span>Sana</span><span>Turbia</span></div>
-                            <input type="range" min="0" max="5" value="${k.ham}" oninput="Game.Kitchens.updateConfig(${idx}, 'ham', this.value)" class="w-full accent-yellow-500 mb-1">
+                            <div class="flex justify-between text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1"><span>Orgánico</span><span>Tóxico</span></div>
+                            <input type="range" min="0" max="5" value="${k.ham}" oninput="Game.Kitchens.updateConfig(${idx}, 'ham', this.value)" class="w-full accent-yellow-500 mb-3">
                         ` : '';
 
-                        let infoStr = `Rinde: ${r.yieldAmt} | Rep: ${r.repHit > 0 ? '+'+r.repHit : r.repHit}%`;
-                        if(r.purezaCost > 0) infoStr += ` | Coste Pureza: -$${r.purezaCost.toFixed(2)}`;
+                        let infoStr = `Rendimiento: ${r.yieldAmt}u | Impacto Rep: ${r.repHit > 0 ? '+'+r.repHit : r.repHit}%`;
+                        if(r.purezaCost > 0) infoStr += `<br><span class="text-red-400">Tasa de Certificación: -$${r.purezaCost.toFixed(2)}</span>`;
 
                         let reqStr = [];
-                        if(r.reqQ>0) reqStr.push(`${r.reqQ} Q`);
-                        if(r.reqH>0) reqStr.push(`${r.reqH} J`);
-                        if(r.reqRad>0) reqStr.push(`${r.reqRad} Rad`);
+                        if(r.reqQ>0) reqStr.push(`${r.reqQ} Biomasa`);
+                        if(r.reqH>0) reqStr.push(`${r.reqH} Proteína`);
+                        if(r.reqRad>0) reqStr.push(`${r.reqRad} Rad.`);
 
                         const card = document.createElement('div');
-                        card.className = "bg-gray-700 p-3 rounded border-l-4 border-yellow-500 relative";
+                        card.className = "bg-slate-800/80 p-4 rounded-xl border-l-4 border-yellow-500 relative shadow-md";
                         card.innerHTML = `
-                            <div class="absolute top-1 right-2 text-xs font-bold text-gray-500">Cocina ${idx+1}</div>
+                            <div class="absolute -top-2 -right-2 bg-yellow-500 text-black text-[10px] font-black px-2 py-0.5 rounded shadow-sm">LAB-${idx+1}</div>
                             ${selectHTML}
                             ${sliderHTML}
-                            <div class="bg-gray-800 p-1 rounded text-center mb-2">
-                                <p class="text-xs font-bold text-gray-200">${reqStr.join(' + ')}</p>
+                            <div class="bg-black/40 p-2 rounded-lg text-center mb-3 border border-slate-700/50">
+                                <p class="text-xs font-bold text-gray-200 mb-1">Insumos: ${reqStr.join(' + ')}</p>
                                 <p class="text-[10px] text-gray-400">${infoStr}</p>
                             </div>
-                            <button onclick="Game.Kitchens.mix(${idx})" class="btn w-full ${canMix ? 'bg-yellow-600 hover:bg-yellow-500' : 'bg-gray-600 cursor-not-allowed opacity-50'} text-white text-sm font-bold py-2 rounded flex justify-center items-center gap-1" ${!canMix?'disabled':''}>
-                                🥣 Producir
+                            <button onclick="Game.Kitchens.mix(${idx})" class="btn w-full ${canMix ? 'bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 border-yellow-500/50' : 'bg-slate-700 cursor-not-allowed opacity-50 border-slate-600'} text-white text-sm font-bold py-2.5 rounded-lg flex justify-center items-center gap-2 shadow-md" ${!canMix?'disabled':''}>
+                                🧪 Sintetizar Lote
                             </button>
                         `;
                         cont.appendChild(card);
@@ -483,11 +658,12 @@
 
             Tech: {
                 buy: (id) => {
+                    Game.Core.resume();
                     const t = Game.cfg.techTree.find(x => x.id === id);
                     if(Game.state.money >= t.cost && !Game.state.tech[id]) {
                         Game.state.money -= t.cost;
                         Game.state.tech[id] = true;
-                        Game.UI.toast(`Tecnología investigada: ${t.name}`, "success");
+                        Game.UI.toast(`Patente Adquirida: ${t.name}`, "success");
                         Game.UI.update();
                     }
                 },
@@ -499,16 +675,16 @@
                         const canAfford = Game.state.money >= t.cost;
                         
                         let btnHtml = isUnlocked 
-                            ? `<span class="text-green-400 font-bold text-xs uppercase tracking-wider">Desbloqueado ✓</span>`
-                            : `<button onclick="Game.Tech.buy('${t.id}')" class="btn bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-1 px-3 rounded" ${!canAfford?'disabled':''}>Investigar ($${t.cost})</button>`;
+                            ? `<span class="bg-emerald-900/50 text-emerald-400 font-bold text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-lg border border-emerald-700/50">Investigado ✓</span>`
+                            : `<button onclick="Game.Tech.buy('${t.id}')" class="btn bg-indigo-600/80 hover:bg-indigo-500 text-white text-[10px] font-bold py-1.5 px-4 rounded-lg border border-indigo-400/30" ${!canAfford?'disabled':''}>Comprar ($${t.cost})</button>`;
                         
                         cont.innerHTML += `
-                            <div class="bg-gray-700 p-3 rounded flex flex-col justify-between border border-gray-600 ${isUnlocked ? 'opacity-60 border-green-900' : ''}">
+                            <div class="bg-slate-800/80 p-4 rounded-xl flex flex-col justify-between border border-slate-700/50 shadow-md ${isUnlocked ? 'opacity-50 border-emerald-900/50' : ''}">
                                 <div>
-                                    <p class="font-bold text-sm text-indigo-300">${t.name}</p>
-                                    <p class="text-xs text-gray-400 mb-2">${t.desc}</p>
+                                    <p class="font-bold text-sm text-indigo-300 mb-1">${t.name}</p>
+                                    <p class="text-xs text-gray-400 mb-3 leading-relaxed">${t.desc}</p>
                                 </div>
-                                <div class="text-right mt-2 pt-2 border-t border-gray-600">
+                                <div class="text-right mt-auto pt-3 border-t border-slate-700/50">
                                     ${btnHtml}
                                 </div>
                             </div>
@@ -519,20 +695,22 @@
 
             Finance: {
                 takeLoan: () => {
+                    Game.Core.resume();
                     const s = Game.state;
                     if(s.debt === 0) {
                         let interest = s.tech.contable ? 0.10 : 0.30;
                         s.money += 500; s.debt = 500 * (1 + interest);
-                        Game.UI.toast("Préstamo adquirido. Los intereses corren.", "warning");
+                        Game.UI.toast("Liquidez inyectada. Prepárate para pagar.", "warning");
                         Game.UI.anim('stat-money'); Game.UI.update();
                     }
                 },
                 payDebt: () => {
+                    Game.Core.resume();
                     const s = Game.state;
                     if(s.debt > 0 && s.money > 0) {
                         let amt = Math.min(s.money, s.debt);
                         s.money -= amt; s.debt -= amt;
-                        if(s.debt <= 0) Game.UI.toast("¡Deuda saldada!", "success");
+                        if(s.debt <= 0) Game.UI.toast("¡Cuentas saldadas! Tus rótulas están a salvo.", "success");
                         Game.UI.anim('stat-money'); Game.UI.update();
                     }
                 }
@@ -540,6 +718,7 @@
 
             Bots: {
                 buy: (type) => {
+                    Game.Core.resume();
                     const s = Game.state;
                     if(s.money >= s.botCosts[type]) {
                         s.money -= s.botCosts[type];
@@ -551,7 +730,6 @@
                 tick: () => {
                     const s = Game.state; let needsUpdate = false;
                     
-                    // Buyers
                     if(s.bots.buyers > 0) {
                         let cost = Game.cfg.baseCosts.quinoa * (s.event.id==='sequia'?3:1) + Game.cfg.baseCosts.ham;
                         let possible = Math.min(s.bots.buyers, Math.floor(Math.max(0, s.money) / cost));
@@ -560,7 +738,6 @@
                         }
                     }
 
-                    // Mixers (procesan cocinas en orden)
                     if(s.bots.mixers > 0) {
                         let remainingMixes = s.bots.mixers;
                         for(let k of s.kitchens) {
@@ -583,7 +760,6 @@
                         }
                     }
 
-                    // Sellers
                     if(s.bots.sellers > 0) {
                         let power = s.campaign.id === 'promo' ? s.bots.sellers * 3 : s.bots.sellers;
                         let possible = Math.min(power, s.portions);
@@ -603,93 +779,39 @@
 
             Events: {
                 triggerCampaign: (id) => {
+                    Game.Core.resume();
                     const s = Game.state;
                     if(s.campaign.id !== null) return;
                     if(id === 'influencer' && s.money >= 100) { s.money -= 100; s.campaign = { id, timer: 20 }; }
                     if(id === 'promo' && s.money >= 50) { s.money -= 50; s.campaign = { id, timer: 15 }; }
-                    Game.UI.toast("Campaña iniciada.", "success"); Game.UI.update();
+                    Game.UI.toast("Growth Hacking iniciado.", "success"); Game.UI.update();
                 },
                 rollRandomEvent: () => {
                     const s = Game.state;
                     if(s.event.id !== null) return;
-                    if(Math.random() < 0.05) { // 5% chance every few seconds
+                    if(Math.random() < 0.05) { 
                         const evs = Game.cfg.events;
                         const ev = evs[Math.floor(Math.random() * evs.length)];
                         
                         if(ev.id === 'escandalo') {
                             if(s.tech.abogado && Math.random() < 0.5) {
-                                Game.UI.toast("Tus abogados silenciaron un escándalo.", "info");
+                                Game.UI.toast("Tus abogados silenciaron un escándalo a tiempo.", "info");
                             } else {
                                 s.reputation = Math.max(0, s.reputation - 15);
-                                Game.UI.toast("¡ESCÁNDALO! Descubrieron tus prácticas dudosas (-15% Rep).", "error");
+                                Game.UI.toast("¡FUNADOS! Descubrieron tus prácticas (-15% Trust).", "error");
                             }
                         } else {
                             s.event = { id: ev.id, timer: ev.duration };
-                            Game.UI.toast(`EVENTO: ${ev.name}`, "warning");
+                            Game.UI.toast(`ALERTA DE MERCADO: ${ev.name}`, "warning");
                         }
                         Game.UI.update();
                     }
                 },
                 tick: () => {
                     const s = Game.state; let up = false;
-                    if(s.campaign.id) { s.campaign.timer--; up = true; if(s.campaign.timer <= 0) { s.campaign.id = null; Game.UI.toast("Campaña finalizada.", "info"); } }
-                    if(s.event.id) { s.event.timer--; up = true; if(s.event.timer <= 0) { s.event.id = null; Game.UI.toast("El evento ha terminado.", "info"); } }
+                    if(s.campaign.id) { s.campaign.timer--; up = true; if(s.campaign.timer <= 0) { s.campaign.id = null; Game.UI.toast("Campaña de Growth finalizada.", "info"); } }
+                    if(s.event.id) { s.event.timer--; up = true; if(s.event.timer <= 0) { s.event.id = null; Game.UI.toast("El mercado se ha estabilizado.", "info"); } }
                     if(up) Game.UI.update();
-                }
-            },
-
-            Core: {
-                checkGameOver: () => {
-                    const s = Game.state;
-                    if(s.status.isGameOver) return;
-                    
-                    // Multas de sanidad
-                    if(s.reputation < 35 && !s.tech.abogado) { // Abogado saves from small fines
-                        s.status.currentFine = 1.00 + (s.portions * 0.05);
-                        s.money -= s.status.currentFine;
-                        if(!s.status.fineNotified) { Game.UI.toast("¡Sanidad impone multas!", "error"); s.status.fineNotified = true; }
-                    } else { s.status.currentFine = 0; s.status.fineNotified = false; }
-
-                    // Bancarrota check
-                    let reason = null;
-                    if(s.reputation <= 0) reason = "Reputación 0%";
-                    else if(s.money < 0) reason = "Capital negativo";
-
-                    if(reason) {
-                        if(!s.status.inDanger) {
-                            s.status.inDanger = true;
-                            s.status.graceTime = s.tech.abogado ? 30 : 15;
-                            Game.UI.getEl('grace-reason').innerText = reason;
-                            Game.UI.getEl('grace-warning').classList.remove('hidden');
-                        } else {
-                            s.status.graceTime--;
-                            Game.UI.getEl('grace-timer').innerText = s.status.graceTime;
-                            if(s.status.graceTime <= 0) {
-                                s.status.isGameOver = true;
-                                Game.Save.silent();
-                                Game.UI.getEl('grace-warning').classList.add('hidden');
-                                Game.UI.getEl('game-over-reason').innerText = `${reason}. Fuiste embargado.`;
-                                Game.UI.getEl('game-over-screen').classList.remove('hidden');
-                                Game.UI.getEl('game-over-screen').classList.add('flex');
-                            }
-                        }
-                    } else {
-                        if(s.status.inDanger) {
-                            s.status.inDanger = false;
-                            Game.UI.getEl('grace-warning').classList.add('hidden');
-                            Game.UI.toast("¡Te has salvado!", "success");
-                        }
-                    }
-                    Game.UI.update();
-                },
-                loop: () => {
-                    if(Game.state.status.isGameOver) return;
-                    Game.Bots.tick();
-                    Game.Events.tick();
-                    Game.Core.checkGameOver();
-                    
-                    // Random events check every 5 seconds roughly
-                    if(Math.random() < 0.2) Game.Events.rollRandomEvent();
                 }
             },
 
@@ -699,14 +821,15 @@
                     if (savedData) {
                         try {
                             const saved = JSON.parse(savedData);
-                            // Deep merge state to prevent undefined errors on new updates
                             Object.keys(saved).forEach(k => {
                                 if (typeof saved[k] === 'object' && saved[k] !== null && !Array.isArray(saved[k])) { Game.state[k] = { ...Game.state[k], ...saved[k] }; } 
                                 else { Game.state[k] = saved[k]; }
                             });
-                            Game.UI.toast("Progreso local recuperado.", "info");
+                            // Forzar que siempre inicie pausado al recargar, sin importar cómo se guardó
+                            Game.state.status.isPaused = true;
+                            Game.UI.toast("Backups corporativos recuperados.", "info");
                         } catch (e) {
-                            console.error("Error al cargar la partida local", e);
+                            console.error("Error al cargar", e);
                         }
                     }
                 },
@@ -716,10 +839,10 @@
                 },
                 manual: () => {
                     Game.Save.silent();
-                    Game.UI.toast("Partida guardada localmente.", "success");
+                    Game.UI.toast("Cifrado y guardado en local.", "success");
                 },
                 reset: () => {
-                    if (confirm("⚠️ ¿Estás seguro de que quieres borrar tu empresa de la faz de la tierra? (Se borrará tu progreso local)")) {
+                    if (confirm("⚠️ ¿Destruir toda evidencia y quemar la empresa? (Reset completo)")) {
                         localStorage.removeItem('quinoaTycoonSaveV2');
                         location.reload();
                     }
@@ -727,19 +850,16 @@
             }
         };
 
-        // --- INICIALIZACIÓN Y BINDING WINDOW ---
-        // Expose to window for inline HTML onclicks
         window.Game = Game;
 
-        // Cargar datos locales al iniciar
+        // Init
         Game.Save.load();
         Game.UI.update();
 
-        // Game Loop
+        // Loops
         setInterval(Game.Core.loop, 1000);
-        setInterval(() => { if (!Game.state.status.isGameOver) Game.Save.silent(); }, 10000); // Autosave 10s
+        setInterval(() => { if (!Game.state.status.isGameOver) Game.Save.silent(); }, 10000); 
 
-        // Before Unload
         window.addEventListener('beforeunload', (e) => {
             Game.Save.silent();
             if (!Game.state.status.isGameOver) { e.preventDefault(); e.returnValue = ''; }
