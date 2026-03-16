@@ -111,8 +111,8 @@
 
     <!-- CABECERA "CORPORATIVA" -->
     <header class="text-center mb-8 w-full max-w-7xl relative pt-8">
-        <h1 class="text-4xl md:text-6xl font-black text-[#2f4f4f] mb-2 tracking-tight">
-            Viva Quinoa <span class="text-[#5f8122]">Naturals.</span>
+        <h1 id="company-name" class="text-4xl md:text-6xl font-black text-[#2f4f4f] mb-2 tracking-tight">
+            Viva Quinoa <span class="text-[#5f8122]">Naturals</span>
         </h1>
         <p class="text-gray-500 text-md tracking-wide mt-2 max-w-2xl mx-auto">
             Descubre el equilibrio perfecto entre calidad, asequibilidad y rentabilidad absurda. Priorizamos tu bienestar* y el de nuestros inversores. <br>
@@ -372,8 +372,22 @@
     <!-- LÓGICA DEL JUEGO -->
     <script>
         const Game = {
+            // Utilidades
+            Utils: {
+                generateName: () => {
+                    const prefixes = ["Viva", "Eco", "Pura", "True", "Bio", "Zen", "Aura", "Karma", "Green", "Vital", "Omni", "Sana", "Nu"];
+                    const cores = ["Quinoa", "Seed", "Grain", "Harvest", "Root", "Earth", "Leaf", "Sprout", "Plant", "Blend", "Core"];
+                    const suffixes = ["Naturals", "Wellness", "Life", "Organics", "Farms", "Co.", "Holistic", "Foods", "Care", "Labs", "Bot Botanicals"];
+                    const p = prefixes[Math.floor(Math.random() * prefixes.length)];
+                    const c = cores[Math.floor(Math.random() * cores.length)];
+                    const s = suffixes[Math.floor(Math.random() * suffixes.length)];
+                    return `${p} ${c} <span class="text-[#5f8122]">${s}.</span>`;
+                }
+            },
+
             // Estado serializable
             state: {
+                companyName: 'Viva Quinoa <span class="text-[#5f8122]">Naturals.</span>',
                 money: 50.00, debt: 0.00, reputation: 100.0, portions: 0,
                 inv: { quinoa: 0, ham: 0, rad: 0 },
                 kitchens: [ { id: 1, type: 'tazon', ham: 1 } ],
@@ -465,6 +479,8 @@
                     u.getEl('stat-portions').innerText = s.portions;
                     u.getEl('stat-debt').innerText = u.formatMoney(s.debt);
                     u.getEl('lbl-interest').innerText = (interest*100) + "%";
+                    
+                    u.getEl('company-name').innerHTML = s.companyName;
                     
                     const repEl = u.getEl('stat-rep');
                     repEl.innerText = s.reputation.toFixed(1) + "%";
@@ -907,7 +923,10 @@
                                 else { Game.state[k] = saved[k]; }
                             });
                             
-                            // Migración por separación de bots
+                            // Migración por separación de bots y nombre de empresa
+                            if (!Game.state.companyName) {
+                                Game.state.companyName = 'Viva Quinoa <span class="text-[#5f8122]">Naturals.</span>';
+                            }
                             if (Game.state.bots.buyers !== undefined) {
                                 Game.state.bots.buyersQ = Game.state.bots.buyers;
                                 Game.state.bots.buyersH = Game.state.bots.buyers;
@@ -937,7 +956,9 @@
                     if (confirm("⚠️ ¿Liquidar activos y abandonar el país? (Se borrará todo tu progreso)")) {
                         localStorage.removeItem('quinoaTycoonSaveV2');
                         // Reiniciamos el estado en caliente en lugar de forzar recarga
+                        const newName = Game.Utils.generateName();
                         Game.state = {
+                            companyName: newName,
                             money: 50.00, debt: 0.00, reputation: 100.0, portions: 0,
                             inv: { quinoa: 0, ham: 0, rad: 0 },
                             kitchens: [ { id: 1, type: 'tazon', ham: 1 } ],
