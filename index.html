@@ -304,15 +304,23 @@
                 <div class="space-y-3">
                     <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100">
                         <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs font-bold text-indigo-900">1. Asistente de Compras</span>
-                            <span class="text-[10px] bg-white text-indigo-600 px-2 py-0.5 rounded font-bold border border-indigo-200">v<span id="amt-autobuyer">0</span></span>
+                            <span class="text-xs font-bold text-indigo-900">1. Agricultor Subcontratado (Q)</span>
+                            <span class="text-[10px] bg-white text-indigo-600 px-2 py-0.5 rounded font-bold border border-indigo-200">v<span id="amt-buyer-q">0</span></span>
                         </div>
-                        <button id="btn-upg-buyer" onclick="Game.Bots.buy('buyers')" class="btn w-full bg-white hover:bg-indigo-100 text-indigo-700 text-[10px] font-bold py-2 rounded border border-indigo-200">Mejorar Algoritmo ($<span id="cost-autobuyer">150</span>)</button>
+                        <button id="btn-upg-buyer-q" onclick="Game.Bots.buy('buyersQ')" class="btn w-full bg-white hover:bg-indigo-100 text-indigo-700 text-[10px] font-bold py-2 rounded border border-indigo-200">Explotar Agricultor ($<span id="cost-buyer-q">100</span>)</button>
                     </div>
                     
                     <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100">
                         <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs font-bold text-indigo-900">2. Artesano Mezclador</span>
+                            <span class="text-xs font-bold text-indigo-900">2. Frigorífico "El Tío" (Sin Inspección)</span>
+                            <span class="text-[10px] bg-white text-indigo-600 px-2 py-0.5 rounded font-bold border border-indigo-200">v<span id="amt-buyer-h">0</span></span>
+                        </div>
+                        <button id="btn-upg-buyer-h" onclick="Game.Bots.buy('buyersH')" class="btn w-full bg-white hover:bg-indigo-100 text-indigo-700 text-[10px] font-bold py-2 rounded border border-indigo-200">Comprar Sobrantes ($<span id="cost-buyer-h">80</span>)</button>
+                    </div>
+                    
+                    <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-indigo-900">3. Artesano Mezclador</span>
                             <span class="text-[10px] bg-white text-indigo-600 px-2 py-0.5 rounded font-bold border border-indigo-200">v<span id="amt-automixer">0</span></span>
                         </div>
                         <button id="btn-upg-mixer" onclick="Game.Bots.buy('mixers')" class="btn w-full bg-white hover:bg-indigo-100 text-indigo-700 text-[10px] font-bold py-2 rounded border border-indigo-200">Contratar Maestro ($<span id="cost-automixer">50</span>)</button>
@@ -320,7 +328,7 @@
 
                     <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100">
                         <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs font-bold text-indigo-900">3. Embajador de Marca</span>
+                            <span class="text-xs font-bold text-indigo-900">4. Embajador de Marca</span>
                             <span class="text-[10px] bg-white text-indigo-600 px-2 py-0.5 rounded font-bold border border-indigo-200">v<span id="amt-autoseller">0</span></span>
                         </div>
                         <button id="btn-upg-seller" onclick="Game.Bots.buy('sellers')" class="btn w-full bg-white hover:bg-indigo-100 text-indigo-700 text-[10px] font-bold py-2 rounded border border-indigo-200">Reclutar Afiliado ($<span id="cost-autoseller">75</span>)</button>
@@ -369,8 +377,8 @@
                 money: 50.00, debt: 0.00, reputation: 100.0, portions: 0,
                 inv: { quinoa: 0, ham: 0, rad: 0 },
                 kitchens: [ { id: 1, type: 'tazon', ham: 1 } ],
-                bots: { mixers: 0, sellers: 0, buyers: 0 },
-                botCosts: { mixers: 50, sellers: 75, buyers: 150 },
+                bots: { mixers: 0, sellers: 0, buyersQ: 0, buyersH: 0 },
+                botCosts: { mixers: 50, sellers: 75, buyersQ: 100, buyersH: 80 },
                 tech: { 
                     saborizante: false, 
                     abogado: false,     
@@ -494,7 +502,8 @@
                     u.getEl('btn-camp-promo').disabled = s.money < 50 || s.campaign.id !== null;
                     u.getEl('btn-camp-influencer').disabled = s.money < 100 || s.campaign.id !== null;
 
-                    u.getEl('amt-autobuyer').innerText = s.bots.buyers; u.getEl('cost-autobuyer').innerText = s.botCosts.buyers; u.getEl('btn-upg-buyer').disabled = s.money < s.botCosts.buyers;
+                    u.getEl('amt-buyer-q').innerText = s.bots.buyersQ; u.getEl('cost-buyer-q').innerText = s.botCosts.buyersQ; u.getEl('btn-upg-buyer-q').disabled = s.money < s.botCosts.buyersQ;
+                    u.getEl('amt-buyer-h').innerText = s.bots.buyersH; u.getEl('cost-buyer-h').innerText = s.botCosts.buyersH; u.getEl('btn-upg-buyer-h').disabled = s.money < s.botCosts.buyersH;
                     u.getEl('amt-automixer').innerText = s.bots.mixers; u.getEl('cost-automixer').innerText = s.botCosts.mixers; u.getEl('btn-upg-mixer').disabled = s.money < s.botCosts.mixers;
                     u.getEl('amt-autoseller').innerText = s.bots.sellers; u.getEl('cost-autoseller').innerText = s.botCosts.sellers; u.getEl('btn-upg-seller').disabled = s.money < s.botCosts.sellers;
 
@@ -794,11 +803,19 @@
                 tick: () => {
                     const s = Game.state; let needsUpdate = false;
                     
-                    if(s.bots.buyers > 0) {
-                        let cost = Game.cfg.baseCosts.quinoa * (s.event.id==='sequia'?3:1) + Game.cfg.baseCosts.ham;
-                        let possible = Math.min(s.bots.buyers, Math.floor(Math.max(0, s.money) / cost));
+                    if(s.bots.buyersQ > 0) {
+                        let cost = Game.cfg.baseCosts.quinoa * (s.event.id==='sequia'?3:1);
+                        let possible = Math.min(s.bots.buyersQ, Math.floor(Math.max(0, s.money) / cost));
                         if(possible > 0) {
-                            s.money -= (cost * possible); s.inv.quinoa += possible; s.inv.ham += possible; needsUpdate = true;
+                            s.money -= (cost * possible); s.inv.quinoa += possible; needsUpdate = true;
+                        }
+                    }
+
+                    if(s.bots.buyersH > 0) {
+                        let cost = Game.cfg.baseCosts.ham;
+                        let possible = Math.min(s.bots.buyersH, Math.floor(Math.max(0, s.money) / cost));
+                        if(possible > 0) {
+                            s.money -= (cost * possible); s.inv.ham += possible; needsUpdate = true;
                         }
                     }
 
@@ -889,6 +906,18 @@
                                 if (typeof saved[k] === 'object' && saved[k] !== null && !Array.isArray(saved[k])) { Game.state[k] = { ...Game.state[k], ...saved[k] }; } 
                                 else { Game.state[k] = saved[k]; }
                             });
+                            
+                            // Migración por separación de bots
+                            if (Game.state.bots.buyers !== undefined) {
+                                Game.state.bots.buyersQ = Game.state.bots.buyers;
+                                Game.state.bots.buyersH = Game.state.bots.buyers;
+                                delete Game.state.bots.buyers;
+                            }
+                            if (Game.state.botCosts.buyersQ === undefined) {
+                                Game.state.botCosts.buyersQ = 100;
+                                Game.state.botCosts.buyersH = 80;
+                            }
+
                             Game.state.status.isPaused = true;
                             Game.UI.toast("Progreso corporativo recuperado.", "info");
                         } catch (e) {
@@ -907,7 +936,22 @@
                 reset: () => {
                     if (confirm("⚠️ ¿Liquidar activos y abandonar el país? (Se borrará todo tu progreso)")) {
                         localStorage.removeItem('quinoaTycoonSaveV2');
-                        location.reload();
+                        // Reiniciamos el estado en caliente en lugar de forzar recarga
+                        Game.state = {
+                            money: 50.00, debt: 0.00, reputation: 100.0, portions: 0,
+                            inv: { quinoa: 0, ham: 0, rad: 0 },
+                            kitchens: [ { id: 1, type: 'tazon', ham: 1 } ],
+                            bots: { mixers: 0, sellers: 0, buyersQ: 0, buyersH: 0 },
+                            botCosts: { mixers: 50, sellers: 75, buyersQ: 100, buyersH: 80 },
+                            tech: { saborizante: false, abogado: false, contable: false, blackmarket: false, marketing: false },
+                            campaign: { id: null, timer: 0 },
+                            event: { id: null, timer: 0 },
+                            status: { isGameOver: false, inDanger: false, graceTime: 15, currentFine: 0, fineNotified: false, isPaused: true }
+                        };
+                        Game.UI.getEl('game-over-screen').classList.add('hidden');
+                        Game.UI.getEl('game-over-screen').classList.remove('flex');
+                        Game.UI.update(true);
+                        Game.UI.toast("Nueva identidad corporativa asumida.", "success");
                     }
                 }
             }
