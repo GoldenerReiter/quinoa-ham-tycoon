@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imperio de la Quinoa de Bajo Costo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #1a202c;
+            /* Tailwind gray-900 */
+            color: #e2e8f0;
+            /* Tailwind gray-200 */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .card {
+            background-color: #2d3748;
+            /* Tailwind gray-800 */
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .btn {
+            transition: all 0.2s;
+        }
+
+        .btn:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(100%);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #2d3748;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4a5568;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #718096;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .animate-pop {
+            animation: pop 0.2s ease-in-out;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center p-4 md:p-8">
+
+    <header class="text-center mb-8 w-full max-w-6xl">
+        <h1 class="text-4xl md:text-5xl font-bold text-yellow-400 mb-2 shadow-sm">🌾 Quinoa & Jamón Tycoon 🍖</h1>
+        <p class="text-gray-400 text-lg">El simulador definitivo de economía y dudosa gastronomía de bajo costo.</p>
+    </header>
+
+    <div class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+        <!-- Stats Top Bar -->
+        <div
+            class="card md:col-span-5 flex flex-wrap justify-between items-center bg-gray-800 border-b-4 border-yellow-500">
+            <div class="text-center p-2 flex-1">
+                <p class="text-sm text-gray-400 uppercase font-bold tracking-wider">Capital</p>
+                <p class="text-3xl font-bold text-green-400" id="stat-money">$20.00</p>
+            </div>
+            <div class="text-center p-2 flex-1 border-l border-gray-600">
+                <p class="text-sm text-gray-400 uppercase font-bold tracking-wider">Reputación</p>
+                <p class="text-3xl font-bold text-green-400" id="stat-rep">100%</p>
+            </div>
+            <div class="text-center p-2 flex-1 border-l border-gray-600">
+                <p class="text-sm text-gray-400 uppercase font-bold tracking-wider">Quinoa Cruda</p>
+                <p class="text-3xl font-bold text-yellow-200" id="stat-quinoa">0</p>
+            </div>
+            <div class="text-center p-2 flex-1 border-l border-gray-600">
+                <p class="text-sm text-gray-400 uppercase font-bold tracking-wider">Restos de Jamón</p>
+                <p class="text-3xl font-bold text-red-300" id="stat-ham">0</p>
+            </div>
+            <div class="text-center p-2 flex-1 border-l border-gray-600">
+                <p class="text-sm text-gray-400 uppercase font-bold tracking-wider">Porciones Listas</p>
+                <p class="text-3xl font-bold text-orange-400" id="stat-portions">0</p>
+            </div>
+        </div>
+    </div>
+
+    <main class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- MATERIA PRIMA -->
+        <div class="card border-t-4 border-blue-500 flex flex-col">
+            <h2 class="text-xl font-bold text-blue-400 mb-4 flex items-center gap-2">🛒 Mercado</h2>
+            <p class="text-sm text-gray-400 mb-4">Compra los ingredientes base. Intenta que nadie haga muchas preguntas
+                sobre el origen.</p>
+
+            <div class="space-y-4 flex-grow">
+                <button id="btn-buy-quinoa" onclick="buyQuinoa()"
+                    class="btn w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded shadow-lg flex justify-between items-center">
+                    <span>Comprar Quinoa 🌾</span>
+                    <span id="cost-quinoa" class="bg-blue-800 px-2 py-1 rounded text-sm">-$3.00</span>
+                </button>
+
+                <button id="btn-buy-ham" onclick="buyHam()"
+                    class="btn w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-4 rounded shadow-lg flex justify-between items-center">
+                    <span>Comprar Jamón 🍖</span>
+                    <span id="cost-ham" class="bg-red-800 px-2 py-1 rounded text-sm">-$1.50</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- PRODUCCIÓN Y VENTAS -->
+        <div class="card border-t-4 border-yellow-500 flex flex-col">
+            <h2 class="text-xl font-bold text-yellow-400 mb-4 flex items-center gap-2">🏭 Fábrica y Ventas</h2>
+            <p class="text-sm text-gray-400 mb-4">Mezcla el jamón con la quinoa para disimular. Luego véndelo como
+                producto "Premium".</p>
+
+            <div class="space-y-4 flex-grow">
+                <div class="bg-gray-700 p-3 rounded border border-gray-600">
+                    <label class="block text-sm font-bold text-yellow-400 mb-2">Receta de la Mezcla</label>
+                    <div class="flex justify-between items-center text-xs text-gray-400 mb-1">
+                        <span>Sana (+Rep)</span>
+                        <span>Turbia (-Rep)</span>
+                    </div>
+                    <input type="range" id="slider-recipe" min="0" max="5" value="1" class="w-full accent-yellow-500"
+                        oninput="updateRecipe()">
+                    <p class="text-center text-sm mt-2 font-bold text-gray-200" id="lbl-recipe">1 Quinoa + 1 Jamón</p>
+                    <p class="text-center text-xs mt-1 text-gray-400" id="lbl-recipe-effect">Rinde: 2 porciones |
+                        Reputación: -0.5%</p>
+                </div>
+
+                <button id="btn-mix" onclick="mix()"
+                    class="btn w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 px-4 rounded shadow-lg flex justify-center items-center gap-2">
+                    <span class="text-xl">🥣</span>
+                    <span class="font-bold">Mezclar Porción</span>
+                </button>
+
+                <div class="border-t border-gray-600 my-4"></div>
+
+                <button id="btn-sell" onclick="sell()"
+                    class="btn w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 px-4 rounded shadow-lg flex justify-between items-center gap-2">
+                    <span class="text-xl">💰</span>
+                    <span class="font-bold">Vender Porción</span>
+                    <span id="price-sell" class="bg-green-800 px-2 py-1 rounded text-sm">+$7.00</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- EL PRESTAMISTA -->
+        <div class="card border-t-4 border-red-700 flex flex-col md:col-span-2 lg:col-span-1">
+            <h2 class="text-xl font-bold text-red-500 mb-4 flex items-center gap-2">🏦 El Prestamista</h2>
+            <p class="text-sm text-gray-400 mb-4">Dinero rápido y sin preguntas. Las rodillas son tu garantía.</p>
+
+            <div class="space-y-4 flex-grow">
+                <div class="bg-gray-700 p-3 rounded text-center">
+                    <p class="text-sm text-gray-400">Deuda Actual</p>
+                    <p class="text-3xl font-bold text-red-400" id="stat-debt">$0.00</p>
+                </div>
+
+                <button id="btn-loan" onclick="takeLoan()"
+                    class="btn w-full bg-red-900 hover:bg-red-800 text-white font-bold py-3 px-4 rounded shadow-lg flex justify-between items-center">
+                    <span>Pedir $500 💸</span>
+                    <span class="bg-red-950 px-2 py-1 rounded text-sm text-red-300">Pagas $650</span>
+                </button>
+
+                <div class="border-t border-gray-600 my-4"></div>
+
+                <button id="btn-pay-debt" onclick="payDebt()"
+                    class="btn w-full bg-green-700 hover:bg-green-600 text-white font-bold py-3 px-4 rounded shadow-lg flex justify-center items-center gap-2">
+                    <span class="text-xl">🤝</span>
+                    <span class="font-bold">Pagar Deuda</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- AUTOMATIZACIÓN Y MEJORAS -->
+        <div class="card border-t-4 border-purple-500 flex flex-col md:col-span-2 lg:col-span-3">
+            <h2 class="text-xl font-bold text-purple-400 mb-4 flex items-center gap-2">⚙️ Gestión y Mejoras</h2>
+            <div class="overflow-y-auto pr-2 max-h-[400px] space-y-3">
+
+                <!-- Automation Items -->
+                <div class="bg-gray-700 p-3 rounded flex justify-between items-center">
+                    <div>
+                        <p class="font-bold text-sm">Mezcladora Automática</p>
+                        <p class="text-xs text-gray-400">Mezcla 1 porción por segundo.</p>
+                        <p class="text-xs text-purple-300">Tienes: <span id="amt-automixer">0</span></p>
+                    </div>
+                    <button id="btn-upg-mixer" onclick="buyAutoMixer()"
+                        class="btn bg-purple-600 hover:bg-purple-500 text-xs py-2 px-3 rounded font-bold whitespace-nowrap">
+                        Comprar ($<span id="cost-automixer">50</span>)
+                    </button>
+                </div>
+
+                <div class="bg-gray-700 p-3 rounded flex justify-between items-center">
+                    <div>
+                        <p class="font-bold text-sm">Vendedor Callejero</p>
+                        <p class="text-xs text-gray-400">Vende 1 porción por segundo.</p>
+                        <p class="text-xs text-purple-300">Tienes: <span id="amt-autoseller">0</span></p>
+                    </div>
+                    <button id="btn-upg-seller" onclick="buyAutoSeller()"
+                        class="btn bg-purple-600 hover:bg-purple-500 text-xs py-2 px-3 rounded font-bold whitespace-nowrap">
+                        Comprar ($<span id="cost-autoseller">75</span>)
+                    </button>
+                </div>
+
+                <div class="bg-gray-700 p-3 rounded flex justify-between items-center">
+                    <div>
+                        <p class="font-bold text-sm">Proveedor Automático</p>
+                        <p class="text-xs text-gray-400">Compra Q y J si hay dinero (1/s).</p>
+                        <p class="text-xs text-purple-300">Tienes: <span id="amt-autobuyer">0</span></p>
+                    </div>
+                    <button id="btn-upg-buyer" onclick="buyAutoBuyer()"
+                        class="btn bg-purple-600 hover:bg-purple-500 text-xs py-2 px-3 rounded font-bold whitespace-nowrap">
+                        Comprar ($<span id="cost-autobuyer">150</span>)
+                    </button>
+                </div>
+
+                <!-- Permanent Upgrades -->
+                <h3 class="font-bold text-gray-400 text-sm pt-2 border-t border-gray-600 mt-2">I+D (Mejoras Permanentes)
+                </h3>
+
+                <div id="upg-cheap-ham"
+                    class="bg-gray-700 p-3 rounded flex justify-between items-center border border-dashed border-red-500">
+                    <div>
+                        <p class="font-bold text-sm text-red-300">Jamón de Dudosa Procedencia</p>
+                        <p class="text-xs text-gray-400">El jamón cuesta $0.50.</p>
+                    </div>
+                    <button onclick="buyUpgrade('cheapHam', 100)"
+                        class="btn bg-gray-600 hover:bg-gray-500 text-xs py-2 px-3 rounded font-bold">
+                        $100
+                    </button>
+                </div>
+
+                <div id="upg-marketing"
+                    class="bg-gray-700 p-3 rounded flex justify-between items-center border border-dashed border-green-500">
+                    <div>
+                        <p class="font-bold text-sm text-green-300">Marketing "Superfood"</p>
+                        <p class="text-xs text-gray-400">Vendes a $10.00 la porción.</p>
+                    </div>
+                    <button onclick="buyUpgrade('marketing', 250)"
+                        class="btn bg-gray-600 hover:bg-gray-500 text-xs py-2 px-3 rounded font-bold">
+                        $250
+                    </button>
+                </div>
+
+                <div id="upg-stretch"
+                    class="bg-gray-700 p-3 rounded flex justify-between items-center border border-dashed border-yellow-500">
+                    <div>
+                        <p class="font-bold text-sm text-yellow-300">Mezcla Acuosa</p>
+                        <p class="text-xs text-gray-400">1 Q + 1 J producen 2 porciones.</p>
+                    </div>
+                    <button onclick="buyUpgrade('stretch', 500)"
+                        class="btn bg-gray-600 hover:bg-gray-500 text-xs py-2 px-3 rounded font-bold">
+                        $500
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Notificaciones (Toast) -->
+    <div id="toast-container" class="fixed bottom-4 right-4 flex flex-col gap-2 z-50"></div>
+
+    <script>
+        // --- ESTADO DEL JUEGO ---
+        const state = {
+            money: 20.00,
+            debt: 0.00,
+            reputation: 100.0,
+            recipeHam: 1, // Jamón por cada 1 Quinoa
+            quinoa: 0,
+            ham: 0,
+            portions: 0,
+
+            // Costos y precios base
+            costs: {
+                quinoa: 3.00,
+                ham: 1.50
+            },
+            sellPrice: 7.00,
+            mixYield: 1, // Cuantas porciones genera 1 mezcla
+
+            // Automatización
+            auto: {
+                mixers: 0,
+                sellers: 0,
+                buyers: 0
+            },
+            autoCosts: {
+                mixers: 50,
+                sellers: 75,
+                buyers: 150
+            },
+
+            // Mejoras compradas
+            upgrades: {
+                cheapHam: false,
+                marketing: false,
+                stretch: false
+            }
+        };
+
+        // --- FUNCIONES DE UTILIDAD ---
+        function formatMoney(amount) {
+            return "$" + amount.toFixed(2);
+        }
+
+        function getEl(id) {
+            return document.getElementById(id);
+        }
+
+        function triggerAnim(id) {
+            const el = getEl(id);
+            el.classList.remove('animate-pop');
+            void el.offsetWidth; // trigger reflow
+            el.classList.add('animate-pop');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = getEl('toast-container');
+            const toast = document.createElement('div');
+
+            let bgColor = 'bg-gray-800';
+            if (type === 'error') bgColor = 'bg-red-800 border-red-500 border-l-4';
+            if (type === 'success') bgColor = 'bg-green-800 border-green-500 border-l-4';
+            if (type === 'warning') bgColor = 'bg-yellow-800 border-yellow-500 border-l-4';
+
+            toast.className = `${bgColor} text-white px-4 py-3 rounded shadow-lg text-sm transition-opacity duration-300 opacity-0 translate-y-2`;
+            toast.innerText = message;
+
+            container.appendChild(toast);
+
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('opacity-0', 'translate-y-2');
+            }, 10);
+
+            // Remove after 3s
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- LÓGICA CORE ---
+
+        function updateRecipe() {
+            state.recipeHam = parseInt(getEl('slider-recipe').value);
+            getEl('lbl-recipe').innerText = `1 Quinoa + ${state.recipeHam} Jamón`;
+
+            let produced = (1 + state.recipeHam) * state.mixYield;
+            let repEffect = state.recipeHam === 0 ? "+0.5%" : `-${(state.recipeHam * 0.5).toFixed(1)}%`;
+
+            getEl('lbl-recipe-effect').innerText = `Rinde: ${produced} porciones | Reputación: ${repEffect}`;
+            updateUI();
+        }
+
+        function updateUI() {
+            // Stats principales
+            getEl('stat-money').innerText = formatMoney(state.money);
+            getEl('stat-quinoa').innerText = state.quinoa;
+            getEl('stat-ham').innerText = state.ham;
+            getEl('stat-portions').innerText = state.portions;
+
+            // Reputación (con colores según nivel)
+            const repEl = getEl('stat-rep');
+            repEl.innerText = state.reputation.toFixed(1) + "%";
+            if (state.reputation > 75) repEl.className = "text-3xl font-bold text-green-400";
+            else if (state.reputation > 30) repEl.className = "text-3xl font-bold text-yellow-400";
+            else repEl.className = "text-3xl font-bold text-red-500";
+
+            // Stats de Deuda
+            getEl('stat-debt').innerText = formatMoney(state.debt);
+            getEl('btn-loan').disabled = state.debt > 0;
+            getEl('btn-pay-debt').disabled = state.debt <= 0 || state.money <= 0;
+
+            // Etiquetas de botones principales
+            getEl('cost-quinoa').innerText = "-" + formatMoney(state.costs.quinoa);
+            getEl('cost-ham').innerText = "-" + formatMoney(state.costs.ham);
+
+            // El precio de venta depende de la reputación actual
+            const currentSellPrice = state.sellPrice * (state.reputation / 100);
+            getEl('price-sell').innerText = "+" + formatMoney(currentSellPrice);
+
+            // Deshabilitar/Habilitar botones según dinero o recursos
+            getEl('btn-buy-quinoa').disabled = state.money < state.costs.quinoa;
+            getEl('btn-buy-ham').disabled = state.money < state.costs.ham;
+            getEl('btn-mix').disabled = (state.quinoa < 1 || state.ham < state.recipeHam);
+            getEl('btn-sell').disabled = state.portions < 1;
+
+            // Actualizar panel de automatización
+            getEl('amt-automixer').innerText = state.auto.mixers;
+            getEl('cost-automixer').innerText = formatMoney(state.autoCosts.mixers).replace('$', '');
+            getEl('btn-upg-mixer').disabled = state.money < state.autoCosts.mixers;
+
+            getEl('amt-autoseller').innerText = state.auto.sellers;
+            getEl('cost-autoseller').innerText = formatMoney(state.autoCosts.sellers).replace('$', '');
+            getEl('btn-upg-seller').disabled = state.money < state.autoCosts.sellers;
+
+            getEl('amt-autobuyer').innerText = state.auto.buyers;
+            getEl('cost-autobuyer').innerText = formatMoney(state.autoCosts.buyers).replace('$', '');
+            getEl('btn-upg-buyer').disabled = state.money < state.autoCosts.buyers;
+        }
+
+        // --- ACCIONES DEL JUGADOR ---
+
+        function buyQuinoa() {
+            if (state.money >= state.costs.quinoa) {
+                state.money -= state.costs.quinoa;
+                state.quinoa++;
+                triggerAnim('stat-quinoa');
+                triggerAnim('stat-money');
+                updateUI();
+            }
+        }
+
+        function buyHam() {
+            if (state.money >= state.costs.ham) {
+                state.money -= state.costs.ham;
+                state.ham++;
+                triggerAnim('stat-ham');
+                triggerAnim('stat-money');
+                updateUI();
+            }
+        }
+
+        function mix() {
+            if (state.quinoa >= 1 && state.ham >= state.recipeHam) {
+                state.quinoa--;
+                state.ham -= state.recipeHam;
+
+                let produced = (1 + state.recipeHam) * state.mixYield;
+                state.portions += produced;
+
+                // Aplicar efecto en reputación (máx 100, mín 1 para evitar bug de dinero en 0 permanente)
+                if (state.recipeHam === 0) {
+                    state.reputation = Math.min(100, state.reputation + 0.5);
+                } else {
+                    state.reputation = Math.max(1, state.reputation - (state.recipeHam * 0.5));
+                }
+
+                triggerAnim('stat-portions');
+                triggerAnim('stat-rep');
+                updateUI();
+            }
+        }
+
+        function sell() {
+            if (state.portions >= 1) {
+                state.portions--;
+                const currentPrice = state.sellPrice * (state.reputation / 100);
+                state.money += currentPrice;
+                triggerAnim('stat-money');
+                triggerAnim('stat-portions');
+                updateUI();
+            }
+        }
+
+        // --- PRESTAMISTA ---
+
+        function takeLoan() {
+            if (state.debt === 0) {
+                state.money += 500;
+                state.debt += 650; // 30% de interés
+                showToast("Has pedido $500. Ahora debes $650. ¡Paga pronto!", "warning");
+                triggerAnim('stat-money');
+                triggerAnim('stat-debt');
+                updateUI();
+            }
+        }
+
+        function payDebt() {
+            if (state.debt > 0 && state.money > 0) {
+                const amount = Math.min(state.money, state.debt);
+                state.money -= amount;
+                state.debt -= amount;
+
+                if (state.debt === 0) {
+                    showToast("¡Has liquidado tu deuda por completo! Tus rodillas están a salvo.", "success");
+                } else {
+                    showToast(`Has abonado ${formatMoney(amount)} a tu deuda.`, "info");
+                }
+
+                triggerAnim('stat-money');
+                triggerAnim('stat-debt');
+                updateUI();
+            }
+        }
+
+        // --- AUTOMATIZACIÓN Y MEJORAS ---
+
+        function buyAutoMixer() {
+            if (state.money >= state.autoCosts.mixers) {
+                state.money -= state.autoCosts.mixers;
+                state.auto.mixers++;
+                state.autoCosts.mixers = Math.floor(state.autoCosts.mixers * 1.5); // Escala el precio
+                showToast("¡Mezcladora Automática instalada!", "success");
+                updateUI();
+            }
+        }
+
+        function buyAutoSeller() {
+            if (state.money >= state.autoCosts.sellers) {
+                state.money -= state.autoCosts.sellers;
+                state.auto.sellers++;
+                state.autoCosts.sellers = Math.floor(state.autoCosts.sellers * 1.5);
+                showToast("¡Vendedor callejero contratado!", "success");
+                updateUI();
+            }
+        }
+
+        function buyAutoBuyer() {
+            if (state.money >= state.autoCosts.buyers) {
+                state.money -= state.autoCosts.buyers;
+                state.auto.buyers++;
+                state.autoCosts.buyers = Math.floor(state.autoCosts.buyers * 1.5);
+                showToast("¡Proveedor automático asegurado!", "success");
+                updateUI();
+            }
+        }
+
+        function buyUpgrade(type, cost) {
+            if (state.money >= cost && !state.upgrades[type]) {
+                state.money -= cost;
+                state.upgrades[type] = true;
+
+                // Aplicar efecto de mejora
+                if (type === 'cheapHam') {
+                    state.costs.ham = 0.50;
+                    showToast("Ahora compras restos de jamón... de origen desconocido.", "warning");
+                    getEl('upg-cheap-ham').style.display = 'none';
+                } else if (type === 'marketing') {
+                    state.sellPrice = 10.00;
+                    showToast("Vendes la mezcla como 'Superfood Fit Proteico'.", "success");
+                    getEl('upg-marketing').style.display = 'none';
+                } else if (type === 'stretch') {
+                    state.mixYield = 2;
+                    showToast("Añades agua a la mezcla. ¡Doble rendimiento!", "warning");
+                    getEl('upg-stretch').style.display = 'none';
+                    updateRecipe(); // Refrescar el texto de la receta
+                }
+
+                updateUI();
+            } else if (state.money < cost) {
+                showToast("No tienes fondos suficientes para investigar esto.", "error");
+            }
+        }
+
+        // --- BUCLE DE JUEGO (GAME LOOP) ---
+        setInterval(() => {
+            let uiNeedsUpdate = false;
+
+            // 1. Proveedor automático (compra ingredientes si hay dinero suficiente para el combo)
+            if (state.auto.buyers > 0) {
+                const comboCost = state.costs.quinoa + state.costs.ham;
+                const buysPossible = Math.min(state.auto.buyers, Math.floor(state.money / comboCost));
+
+                if (buysPossible > 0) {
+                    state.money -= (comboCost * buysPossible);
+                    state.quinoa += buysPossible;
+                    state.ham += buysPossible;
+                    uiNeedsUpdate = true;
+                }
+            }
+
+            // 2. Mezcladora automática
+            if (state.auto.mixers > 0) {
+                let maxMixesQ = state.quinoa;
+                let maxMixesH = state.recipeHam === 0 ? Infinity : Math.floor(state.ham / state.recipeHam);
+                let possibleMixesByMats = Math.min(maxMixesQ, maxMixesH);
+
+                const mixesPossible = Math.min(state.auto.mixers, possibleMixesByMats);
+                if (mixesPossible > 0) {
+                    state.quinoa -= mixesPossible;
+                    state.ham -= (mixesPossible * state.recipeHam);
+
+                    let producedPerMix = (1 + state.recipeHam) * state.mixYield;
+                    state.portions += (mixesPossible * producedPerMix);
+
+                    let repChange = state.recipeHam === 0 ? 0.5 : -(state.recipeHam * 0.5);
+                    state.reputation = Math.max(1, Math.min(100, state.reputation + (repChange * mixesPossible)));
+
+                    uiNeedsUpdate = true;
+                }
+            }
+
+            // 3. Vendedor automático
+            if (state.auto.sellers > 0) {
+                const salesPossible = Math.min(state.auto.sellers, state.portions);
+                if (salesPossible > 0) {
+                    state.portions -= salesPossible;
+                    const currentPrice = state.sellPrice * (state.reputation / 100);
+                    state.money += (salesPossible * currentPrice);
+                    uiNeedsUpdate = true;
+                }
+            }
+
+            // Refrescar UI si pasó algo en background
+            if (uiNeedsUpdate) {
+                updateUI();
+            }
+
+        }, 1000); // 1 Tick por segundo
+
+        // Inicialización
+        updateRecipe();
+        showToast("Bienvenido al negocio. Empieza comprando ingredientes.", "info");
+
+    </script>
+</body>
+
+</html>
